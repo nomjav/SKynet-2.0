@@ -1,0 +1,40 @@
+﻿@using Kendo.Mvc.UI
+
+<br /><br />
+<div class="card text-white" style="  background-color: #52a0f4!important;">
+    <div class="card-header">Call Us Back Information</div>
+    <div class="card-body bg-light text-dark">
+
+        @(Html.Kendo().Grid<Skynet.Service.ViewModels.CubModel>()
+        .Name("callslip-cub-grid")
+        .Columns(columns =>
+        {
+            columns.Bound(x => x.CustomerName);
+            columns.Bound(x => x.Phone);
+            columns.Bound(x => x.City);
+            columns.Bound(x => x.Notes);
+            columns.Bound(x => x.JobType);
+            columns.Bound(x => x.Id);
+
+        })
+        .HtmlAttributes(new { style = "height: 380px;" })
+        .Scrollable()
+        .Groupable()
+        .Sortable()
+        .Pageable(pageable => pageable
+            .Refresh(true)
+            .PageSizes(true)
+            .ButtonCount(3))
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Read(read => read.Action("_CallUsBack", "CallSlip"))
+        )
+        )
+
+    </div>
+</div>
+<style>
+    #callslip-cub-grid button {
+        width: auto;
+    }
+</style>

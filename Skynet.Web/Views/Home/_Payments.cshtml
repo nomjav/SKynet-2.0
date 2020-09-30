@@ -1,0 +1,289 @@
+﻿<table class="details" style="font-size:12px;">
+
+    <tr>
+        <td colspan="100%">
+            <form id="AmountForm">
+                <table class="details">
+                    <tr style="display:none;"><td><input id="CreditCardId" type="hidden" value="" /></td></tr>
+                    <tr>
+                        <td>
+                            &nbsp; &nbsp; <select class="form-control" id="PaymentMethodId" name="PaymentMethodId">
+                                                <option value="2">Master Card</option>
+                                                <option value="3">AMEX</option>
+                                                <option value="4">Cash</option>
+                                                <option value="5">Check</option>
+                                                <option value="6">Discover</option>
+                                                <option value="7">Billing </option>
+                                                <option value="8">Multi</option>
+                                          </select>  @*@Html.DropDownList("PaymentMethodId", new SelectList(ViewBag.PaymentMethods, "Id", "Name", "1"))*@
+                            @*&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;<strong>Amount: $ </strong>*@
+                            @*<input class="form-control" type="text" id="Amount" style="width:50px !important" onkeyup="FlagNTEAmount();" class="number required" value="00.00" />*@
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </td>
+    </tr>
+
+</table>
+<br />
+
+
+<div id="PaymentsDiv">
+    <table style="font-size:12px;" id="PaymentsGrid" class="table table-hover">
+        <thead style="background-color:#dfe0e6;">
+            <tr>
+                <th>Amount</th>
+                <th>Date Paid</th>
+                <th>Payment Method</th>
+                <th>Approval</th>
+                <th>Notes</th>
+                <th>Collected By</th>
+                <th>Contractor PO</th>
+            </tr>
+        </thead>
+        <tbody style="background-color:white;" id="tblBodyPaymentsGrid"></tbody>
+    </table>
+</div>
+<div id="CardsDiv">
+    <table style="font-size:12px;" id="CardsGrid" class="table table-hover">
+        <thead style="background-color:#dfe0e6;">
+            <tr>
+                <th>Name On Card</th>
+                <th>Card Number</th>
+                <th>Expiration Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody style="background-color:white;" id="tbodyCreditCards"></tbody>
+    </table>
+</div>
+<style>
+    .paymentNormalField {
+        width: 130px;
+    }
+
+    #PaymentStateId {
+        width: 130px;
+    }
+
+    #PaymentMethodId {
+        width: 130px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+
+        $("#CardNumber").keyup(function () {
+            this.value = KeepCreditCardFormatOnly(this.value);
+        });
+
+
+        $("#Amount").keyup(function () {
+            this.value = KeepDigitsOnly(this.value);
+        });
+
+
+
+        //Function to save card Information
+        $('#SaveCashPayment').click(function () {
+            var callslipId = $('#CallSlipId').val();
+            var CreditCardFormValid = $('#CreditCardForm').valid();
+            var AmountFormValid = $('#AmountForm').valid();
+            if (CreditCardFormValid && AmountFormValid) {
+                var request = {
+                    CallSlipId: callslipId, Amount: $('#Amount').val(), ExistingCard: "False",
+                    NameOnCard: $('#NameOnCard').val(), AddressOnCard: $('#AddressOnCard').val(), CardCity: $('#CardCity').val(),
+                    CardZip: $('#CardZip').val(), StateId: $('#StateId').val(), CRVNumber: $('#CRVNumber').val(),
+                    CreditCardExpireMonth: $('#CreditCardExpireMonth').val(), CreditCardExpireYear: $('#CreditCardExpireYear').val(),
+                    CardNumber: $('#CardNumber').val(), CreditCardType: $('#PaymentMethodId option:selected').text(),
+                    PaymentMethodId: $('#PaymentMethodId').val(), ReceiptNumber: $('#ccReceiptNumber').val(), Notes: $('#PaymentNotes').val(), PaidDate: $('#PaidDate').val()
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json, charset=utf-8",
+                    url: "@Url.Content("~/Home/SaveCashPayment")",
+                    data: JSON.stringify(request),
+                    success: function (msg) {
+                        var data;
+                        if (msg.hasOwnProperty("d")) {
+                            data = msg.d;
+                        } else
+                            data = msg;
+                        if (data.success) {
+                            Notify(data.message, 'success');
+                            ResetCardPaymentFields();
+                            ShowJobNotes();
+                            GetPaymentsByJobId(callslipId);
+                            GetPaymentMethodsByJobId(callslipId);
+                        } else {
+                            Notify(data.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        CommunicationError();
+                    }
+                });
+            }
+            else {
+
+                $('#CreditCardForm .required').each(function () {
+                    $(this).attr('placeholder', 'Field is required');
+                });
+                $('#AmountFormValid .required').each(function () {
+                    $(this).attr('placeholder', 'Field is required');
+                });
+            }
+            //add return statement
+            return true;
+        });
+
+
+        $('#SaveCardPayment').click(function () {
+
+            var cardNumber = $('#CardNumber').val();
+            if ($('#cardNotRun').is(":checked") == true) {
+                $('#CardNumber').removeClass("required");
+                $('#CardNumber').rules('remove');
+                $('#CRVNumber').removeClass("required");
+                $('#CRVNumber').rules('remove');
+                $('#NameOnCard').removeClass("required");
+                $('#NameOnCard').rules('remove');
+                cardNumber = "";
+                NameOnCard = "";
+                CRVNumber = "";
+            }
+            else {
+                $('#CardNumber').addClass("required");
+                $('#CRVNumber').addClass("required");
+            }
+
+            var CreditCardFormValid = $('#CreditCardForm').valid();
+            var AmountFormValid = $('#AmountForm').valid();
+            if (CreditCardFormValid && AmountFormValid) {
+
+                var request = {
+                    CardId: $('#CreditCardId').val(), CallSlipId: $('#CallSlipId').val(), Amount: $('#Amount').val(),
+                    NameOnCard: $('#NameOnCard').val(), AddressOnCard: $('#AddressOnCard').val(), CardCity: $('#CardCity').val(),
+                    CardZip: $('#CardZip').val(), StateId: $('#PaymentStateId option:selected').val(), CRVNumber: $('#CRVNumber').val(),
+                    CreditCardExpireMonth: $('#CreditCardExpireMonth  option:selected').text(), CreditCardExpireYear: $('#CreditCardExpireYear').val(),
+                    //CardNumber: $('#CardNumber').val(),
+                    CardNumber: $('#hdnCreditCardNumber').val(),
+                    CardNotRun: $('#cardNotRun').is(':checked'), CreditCardType: $('#PaymentMethodId option:selected').text(),
+                    PaymentMethodId: $('#PaymentMethodId').val(), ReceiptNumber: $('#ccReceiptNumber').val(), Notes: $('#PaymentNotes').val(), PaidDate: $('#PaidDate').val()
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json, charset=utf-8",
+                    url: "@Url.Content("~/Home/ProcessCardPayment")",
+                    data: JSON.stringify(request),
+                    success: function (msg) {
+                        var data;
+                        if (msg.hasOwnProperty("d")) {
+                            data = msg.d;
+                        } else
+                            data = msg;
+                        if (data.success) {
+                            Notify(data.message, 'success');
+                            ResetCardPaymentFields();
+                            ShowJobNotes();
+                            GetPaymentsByJobId();
+                            GetPaymentMethodsByJobId();
+                            //SelectJob(data.JobId);
+                            //refreshCallsGrid(0);
+                        } else {
+                            Notify(data.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        CommunicationError();
+                    }
+                });
+            }
+            //else {
+            //    if ($('#cardNotRun').is(":checked") == false) {
+            //        $('#CreditCardForm .required').each(function () {
+            //            $(this).attr('placeholder', 'Field is required');
+            //        });
+            //        $('#AmountFormValid .required').each(function () {
+            //            $(this).attr('placeholder', 'Field is required');
+            //        });
+            //    }
+            //}
+            //add return statement
+            return true;
+        });
+
+
+
+        //FUNCTION TO SAVE CHECK PAYMENT
+        $('#SaveCheckPayment').click(function () {
+
+            var AmountFormValid = $('#AmountForm').valid();
+            var CheckFormValid = $('#CheckForm').valid();
+            if (CheckFormValid && AmountFormValid) {
+                var request = {
+                    CallSlipId: $('#CallSlipId').val(), PaymentMethodId: $('#PaymentMethodId').val(),
+                    Amount: $('#Amount').val(), CheckNumber: $('#CheckNumber').val(),
+                    CheckPaidDate: $('#CheckPaidDate').val(), ReceiptNumber: $('#ccReceiptNumber').val(), Notes: $('#PaymentNotes').val()
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json, charset=utf-8",
+                    url: "@Url.Content("~/Home/SaveCheckPayment")",
+                    data: JSON.stringify(request),
+                    success: function (msg) {
+                        var data;
+                        if (msg.hasOwnProperty("d")) {
+                            data = msg.d;
+                        } else
+                            data = msg;
+                        if (data.success) {
+                            Notify(data.message, 'success');
+                            ShowJobNotes();
+                            //SelectJob(data.JobId);
+                            //refreshCallsGrid(0);
+                        } else {
+                            Notify(data.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        CommunicationError();
+                    }
+                });
+            }
+            else {
+                $('#CheckForm .required').each(function () {
+                    $(this).attr('placeholder', 'Field is required');
+                });
+                $('#AmountForm .required').each(function () {
+                    $(this).attr('placeholder', 'Field is required');
+                });
+            }
+        });
+
+        $('#CardNumber').focusout(function () {
+
+            var cardNumber = $('#CardNumber').val();
+            if (cardNumber.length > 5)//minimum/maximum numbers to be displayed are 4.
+            {
+                $('#hdnCreditCardNumber').val(cardNumber);
+                //cardNumber = cardNumber.replace("/\d(?=\d{4})/mg", "*");
+                cardNumber = cardNumber.replace(/.(?=.{4,}$)/g, '*')
+                $('#CardNumber').val(cardNumber);
+            }
+            else {
+                $('#hdnCreditCardNumber').val("");
+            }
+        });
+        $('#CardNumber').focusin(function () {
+
+            var cardNumber = $('#hdnCreditCardNumber').val();
+            if (cardNumber != "") {
+                //$('#hdnCreditCardNumber').val(cardNumber);
+                //cardNumber = cardNumber.replace("\d(?=\d{4})", "*");
+                $('#CardNumber').val(cardNumber);
+            }
+        });
+    });
+</script>

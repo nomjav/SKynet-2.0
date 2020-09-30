@@ -1,0 +1,14 @@
+C:\Work\Skynet 2.0\Skynet.Repository\bin\Release\netcoreapp2.1\Skynet.Repository.deps.json
+C:\Work\Skynet 2.0\Skynet.Repository\bin\Release\netcoreapp2.1\Skynet.Repository.runtimeconfig.json
+C:\Work\Skynet 2.0\Skynet.Repository\bin\Release\netcoreapp2.1\Skynet.Repository.runtimeconfig.dev.json
+C:\Work\Skynet 2.0\Skynet.Repository\bin\Release\netcoreapp2.1\Skynet.Repository.dll
+C:\Work\Skynet 2.0\Skynet.Repository\bin\Release\netcoreapp2.1\Skynet.Repository.pdb
+C:\Work\Skynet 2.0\Skynet.Repository\bin\Release\netcoreapp2.1\Skynet.Data.dll
+C:\Work\Skynet 2.0\Skynet.Repository\bin\Release\netcoreapp2.1\Skynet.Data.pdb
+C:\Work\Skynet 2.0\Skynet.Repository\obj\Release\netcoreapp2.1\Skynet.Repository.csprojAssemblyReference.cache
+C:\Work\Skynet 2.0\Skynet.Repository\obj\Release\netcoreapp2.1\Skynet.Repository.csproj.CoreCompileInputs.cache
+C:\Work\Skynet 2.0\Skynet.Repository\obj\Release\netcoreapp2.1\Skynet.Repository.AssemblyInfoInputs.cache
+C:\Work\Skynet 2.0\Skynet.Repository\obj\Release\netcoreapp2.1\Skynet.Repository.AssemblyInfo.cs
+C:\Work\Skynet 2.0\Skynet.Repository\obj\Release\netcoreapp2.1\Skynet.Repository.csproj.CopyComplete
+C:\Work\Skynet 2.0\Skynet.Repository\obj\Release\netcoreapp2.1\Skynet.Repository.dll
+C:\Work\Skynet 2.0\Skynet.Repository\obj\Release\netcoreapp2.1\Skynet.Repository.pdb

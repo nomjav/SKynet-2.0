@@ -1,0 +1,117 @@
+﻿
+<form id="SMSFrom" hidden>
+    <table class="details">
+        <tr>
+            <td>
+                To
+            </td>
+            <td colspan="2">
+                <input type="text" id="ToPhone" class="required1" name="ToPhone" />
+                &nbsp;&nbsp;&nbsp;
+                <span>Message Type: &nbsp;&nbsp;&nbsp;</span>
+
+                <select id="smsType" name="smsType">
+                    <option value="SMS">SMS</option>
+                    <option value="iPhone">iPhone</option>
+                </select>
+            </td>
+
+        </tr>
+        <tr>
+            <td>Message</td>
+            <td>
+                <textarea rows="3" cols="30" id="SMSMessage" name="SMSMessage" class="required"></textarea>
+            </td>
+            <td>
+                <button type="button" id="btnSendMessage" onclick="SendSMS();" class="btn btn-success">Send</button>
+            </td>
+        </tr>
+    </table>
+</form>
+<button id="SMSDiv" class="btn btn-success" style="font-size:11px;" onclick="SMSDiv();">Send SMS</button>
+<br />
+<br />
+<br />
+<div class="tablesScroll">
+    <table class="table table-hover" style="font-size:12px; margin-top: -9px;" id="messageGrid">
+        <thead style="background-color:#dfe0e6;">
+            <tr>
+                <th style="width:50%;">Send</th>
+                <th style="width:50%;">Receive</th>
+                @*<th>From/To</th>
+                    <th>Message</th>
+                    <th>Time</th>
+                    <th>Sender</th>*@
+            </tr>
+        </thead>
+        <tbody style="background-color:white;" id="tblBodyMessageGrid"></tbody>
+    </table>
+</div>
+@*<div id="tblBodyMessageGrid"></div>*@
+<hr />
+<table class="table table-hover" style="font-size:12px;" id="basicJobDetails">
+    <thead style="background-color:#dfe0e6;">
+        <tr>
+            <th colspan="4">Basic Job Details</th>
+        </tr>
+    </thead>
+    <tbody style="background-color:white;">
+        <tr>
+            <td><strong>Customer Name</strong></td>
+            <td><span id="comm_CustomerName"></span></td>
+            <td><strong>Address</strong></td>
+            <td><span id="comm_Address"></span></td>
+        </tr>
+        <tr>
+            <td><strong>City</strong></td>
+            <td><span id="comm_City"></span></td>
+            <td><strong>State</strong></td>
+            <td><span id="comm_State"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Zip</strong></td>
+            <td><span id="comm_Zip"></span></td>
+            <td><strong>Job Description</strong></td>
+            <td><span id="comm_JobDescription"></span></td>
+        </tr>
+        <tr>
+            <td><strong>IVR#</strong></td>
+            <td><span id="comm_IVR"></span></td>
+            <td><strong>PIN#</strong></td>
+            <td><span id="comm_PIN"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Work Order Number</strong></td>
+            <td><span id="comm_WorkOrderNumber"></span></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<hr />
+<table class="table table-hover" style="font-size:12px;" id="tblJobContractorDetails">
+    <thead style="background-color:#dfe0e6;">
+        <tr>
+            <th>Contractor Name</th>
+            <th>Contact No</th>
+        </tr>
+    </thead>
+    <tbody style="background-color:white;"></tbody>
+</table>
+
+@section scripts
+{
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        $(document).on("change", "#smsType", function() {
+           // if ($(this).find("option:selected").attr("value") == "iPhone")
+            if ($(this).value == "iPhone")
+                $("#ToPhone").val('(000) 000-0000');
+        });
+
+    });
+
+    </script>
+
+}

@@ -1,0 +1,1887 @@
+﻿    <script type="text/javascript">
+    $(document).ready(function () {
+        //GetEquipments();
+        GetCommercialEquipments()
+        $('#JobTypeId').width(308);
+        $('#CustomerType').width(308);
+        $('#AddressType').width(308);
+        $('#StateId').width(308);
+        $('#CountyId').width(308);
+        $('#CountryId').width(308);
+        $('#EquipmentId').width(308);
+        $('#AdTypeId').width(308);
+        $('#PaymentMethodId').width(308);
+        $("#PaymentMethodId").val("");
+        $('#ServiceTimeTo').timepicker();
+        $('#ServiceTimeFrom').timepicker();
+        $('#ServiceDate').datepicker();
+        $('#ExpectedTime').timepicker();
+        //$('#PreferedCommunicationMethod').click(function () {
+
+        //    if (this.checked) {
+        //        updateCustomerPopupShow();
+        //        //$('#CustomerUpdateDialog').dialog({
+        //        //    title: 'Customer Update Status',
+        //        //    resizeable: true,
+        //        //    width: 400,
+        //        //    modal: true
+
+        //        //});
+        //    }
+        //});
+
+        $('#closecustinfoPopup').click(function () {
+            $("#CustomerInfoPopup").dialog("close");
+        });
+
+        AddReqClassOnStart();
+
+        $('#btnSaveCustomerUpdateStatus').click(function () {
+            $('#CustomerUpdateDialog').dialog('destroy');
+        });
+        $('#btnAutoJobDialog').click(function () {
+            $('#AutoJobDialog').dialog('destroy');
+        });
+
+        $('#Day').change(function () {
+            if ($(this).val() == "1" || $(this).val() == "2") {
+                $('#ExpectedTime').fadeIn(); $('.tLabel').fadeIn();
+                $('.range').fadeOut();
+
+            }
+            if ($(this).val() == "3") {
+                $('#ExpectedTime').fadeOut();
+                $('.tLabel').fadeOut();
+                $('.range').css('display', 'inline-block');
+            }
+        });
+        $('.BillingAddress').hide();
+        $('input[type="radio"][name="BillingAddress"]').click(function () {
+            if ($(this).val() == "2") {
+                $('.BillingAddress').hide();
+                $('#ExistingBillingAddresses').show();
+            }
+            if ($(this).val() == "3") {
+                $('#ExistingBillingAddresses').hide();
+                $('.BillingAddress').show();
+            }
+            if ($(this).val() == "1" || $(this).val() == "4") {
+                $('.BillingAddress').hide();
+                $('#ExistingBillingAddresses').hide();
+            }
+        });
+
+        //$('#CustomerType').change(function () {
+
+
+
+        //});
+
+        $("#AdTypeId").change(function () {
+            if ($(this).val() == "1") {
+                $(".ShowHideWebSource").show();
+            } else {
+                $(".ShowHideWebSource").hide();
+            }
+        });
+
+        $('#CallSlipForm').validate();
+
+        $('#CreateOrUpdateCallSlip').click(function () {
+
+
+            if ($('#CustomerType').val() == "4" || $('CustomerType').val() == "2") {
+                $('#AdTypeId').css('border', '1px solid red');
+                vl = false;
+            }
+            var test = $('#IsEmergency').is(':checked');
+            // CheckEmergency();
+            $('#CustomerName').addClass('required').attr('placeholder', 'Field is required');
+            $('#Zip').addClass('required').attr('placeholder', 'Field is required');
+            if ($('#Day').val() == "3") {
+                $('#ExpectedTime').removeClass('required');
+                $('#ServiceTimeFrom').addClass('required');
+                $('#ServiceTimeTo').addClass('required');
+            } else {
+                $('#ServiceTimeFrom').removeClass('required');
+                $('#ServiceTimeTo').removeClass('required');
+                $('#ExpectedTime').addClass('required');
+            }
+            if ($('#AddressType').val() == "0") {
+                $('#AddressType').addClass('required');
+            }
+            var vl = $('#CallSlipForm').valid();
+            if ($('#AddressType').val() == "0") {
+                $('#AddressType').css('border', '1px solid red');
+                vl = false;
+
+            } else {
+                $('#AddressType').css('border', '');
+            }
+
+            if ($('#JobTypeId').val() == "0") {
+                $('#JobTypeId').css('border', '1px solid red');
+                vl = false;
+
+            } else {
+                $('#JobTypeId').css('border', '');
+            }
+
+            //if ($("#EquipmentId").val() == "8") {
+            //    $('#EquipmentId').css('border', '1px solid red');
+            //    vl = false;
+            //}
+            //else {
+            //    $('#EquipmentId').css('border', '');
+            //}
+
+            if ($('input[type="radio"][name="BillingAddress"]:checked').val() == 2) {
+                if ($('#ExistingBillingAddresses').val() == 0) {
+                    vl = false;
+                    $('#ExistingBillingAddresses').css('border', '1px solid red');
+                }
+            } else {
+                $('#ExistingBillingAddresses').css('border', '');
+            }
+            //check for coporate address id
+
+            if ($('input[type="radio"][name="BillingAddress"]:checked').val() == 4 && vl) {
+                if ($('#AddressId').val() == 0) {
+                    vl = false;
+                    //$('#AddressId').css('border', '1px solid red');
+                    Notify("No default address exist for this customer.", "error");
+                }
+            } else {
+                //$('#AddressId').css('border', '');
+            }
+            if ($("#AdTypeId").val() == "") {
+                vl = false;
+                $('#AdTypeId').css('border', '1px solid red');
+            }
+            else {
+                $('#AdTypeId').css('border', '');
+            }
+            if ($("#Zip").val() == "") {
+                vl = false;
+                $('#Zip').css('border', '1px solid red');
+            }
+            else {
+                $('#Zip').css('border', '');
+            }
+
+
+            //if($('#CountryId').val() == "2")
+            //{
+            //    if($('#StateId').val() == "0")
+            //    {
+            //        vl = false;
+            //        $('#StateId').css('border', '1px solid red');
+            //    }
+            //}
+            if (vl) {
+
+
+                if(1 != 1)
+                {
+                    var Id = $('#CustomerId').val();
+                    //check credit worthy
+                    var creditworthy;
+                    var request = { CustomerId : Id}
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json, charset=utf-8",
+                        url: "@Url.Content("~/Customer/CheckCreditWorthy")",
+                        data: JSON.stringify(request),
+                        success: function (data) {
+                            if(data.success){
+                                creditworthy = data.Worthy;
+                                if (creditworthy == 0) {
+                                    Notify("Customer is not Credit Worthy!", "error");
+                                }
+                                else
+                                {
+                                    CreateOrUpdateCallSlip(false);
+                                    //ClearDropDownsOnClearAndAfterSavingCallSlip();
+                                }
+                            }
+                            else
+                            {
+                                CreateOrUpdateCallSlip(false);
+                                //ClearDropDownsOnClearAndAfterSavingCallSlip();
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    CreateOrUpdateCallSlip(false);
+                    //ClearDropDownsOnClearAndAfterSavingCallSlip();
+                }
+            }
+            else {
+                $('.required').each(function () {
+                    $('.required').attr('placeholder', 'Field is required');
+                });
+            }
+
+        });
+        $('#btnpopulateContactPerson').click(function () {
+            $('#ContactPerson').val($('#CallInBy').val());
+
+        });
+        $('#CUB').click(function () {
+            $('#CustomerName').addClass('required').attr('placeholder', 'Field is required');
+            $('#Zip').addClass('required').attr('placeholder', 'Field is required');
+            if ($('#Day').val() == "3") {
+                $('#ExpectedTime').removeClass('required');
+                $('#ServiceTimeFrom').addClass('required');
+                $('#ServiceTimeTo').addClass('required');
+            } else {
+                $('#ServiceTimeFrom').removeClass('required');
+                $('#ServiceTimeTo').removeClass('required');
+                $('#ExpectedTime').addClass('required');
+            }
+
+            var vl = $('#CallSlipForm').valid();
+
+            if ($('#AddressType').val() == "0") {
+                $('#AddressType').css('border', '1px solid red');
+                vl = false;
+
+            } else {
+                $('#AddressType').css('border', '');
+            }
+
+            if ($("#EquipmentId").val() == "8") {
+                $('#EquipmentId').css('border', '1px solid red');
+                vl = false;
+
+            }
+            else {
+                $('#EquipmentId').css('border', '');
+            }
+
+            if ($('#JobTypeId').val() == "0") {
+                $('#JobTypeId').css('border', '1px solid red');
+                vl = false;
+
+            } else {
+                $('#JobTypeId').css('border', '');
+            }
+
+            if ($('input[type="radio"][name="BillingAddress"]:checked').val() == 2) {
+                if ($('#ExistingBillingAddresses').val() == 0) {
+                    vl = false;
+                    $('#ExistingBillingAddresses').css('border', '1px solid red');
+                }
+            } else {
+                $('#ExistingBillingAddresses').css('border', '');
+            }
+
+            //  check for coporate address id
+            if ($('input[type="radio"][name="BillingAddress"]:checked').val() == 4) {
+                if ($('#AddressId').val() == 0) {
+                    vl = false;
+                    //$('#AddressId').css('border', '1px solid red');
+                    Notify("No default address exist for this customer.", "error");
+                }
+            } else {
+                //$('#AddressId').css('border', '');
+            }
+            if ($("#AdTypeId").val() == "") {
+                vl = false;
+                $('#AdTypeId').css('border', '1px solid red');
+            }
+            else {
+                $('#AdTypeId').css('border', '');
+            }
+
+            if (vl) {
+                CreateOrUpdateCallSlip(true);
+                //ClearDropDownsOnClearAndAfterSavingCallSlip();
+            }
+            else {
+                $('.required').each(function () {
+                    $('.required').attr('placeholder', 'Field is required');
+                });
+            }
+        });
+        $('#cbAutoJob').change(function () {
+            var checked = $(this).is(':checked');
+            if (checked) {
+                $('.auto-fields').fadeIn("slow");
+            }
+            else {
+
+                $('.auto-fields').fadeOut('slow');
+            }
+        });
+        $('.QuantityBox').keyup(function () {
+            $('#QuantityBox').val('');
+            if (IsNumber($(this).val())) {
+                $('#QuantityBox').val($(this).val());
+            } else {
+                $(this).attr('placeholder', 'Only numbers are allowed');
+            }
+
+        });
+        $("#serviceModal").dialog({ autoOpen: false, title: 'Select Services to Add', width: 450, modal: true });
+        $("#addService").click(function () {
+            $("#serviceModal").dialog("open");
+        });
+        $('#serviceModal .cancel').click(function () {
+            $("#serviceModal").dialog("close");
+            $('.QuantityBox').each(function () {
+                $(this).val('');
+            });
+        });
+
+        if ($('#CustomerType').val() == "1") {
+            $('.rbBilling').attr('disabled', true);
+            $('input[type="radio"][value="4"]').attr('checked', 'checked');
+        }
+
+
+        function ClearReqFields()
+        {
+            $('#custNameLabel').removeClass('clsRequired');
+            $('#ReqJobType').removeClass('clsRequired');
+            $('#ReqStore').removeClass('clsRequired');
+            $('#ReqContactPerson').removeClass('clsRequired');
+            $('#ReqStreetAddress').removeClass('clsRequired');
+            $('#ReqZipCode').removeClass('clsRequired');
+            $('#ReqAddressType').removeClass('clsRequired');
+            $('#ReqPhone').removeClass('clsRequired');
+            //$('#ReqEquipment').removeClass('clsRequired');
+            $('#ReqJobDescription').removeClass('clsRequired');
+            $('#ReqWorkDate').removeClass('clsRequired');
+            $('#ReqPaymentMethod').removeClass('clsRequired');
+        }
+
+        function AddReqClass(){
+            $('#custNameLabel').addClass('clsRequired');
+            $('#ReqJobType').addClass('clsRequired');
+            $('#ReqStreetAddress').addClass('clsRequired');
+            $('#ReqZipCode').addClass('clsRequired');
+            $('#ReqAddressType').addClass('clsRequired');
+            $('#ReqPhone').addClass('clsRequired');
+            //$('#ReqEquipment').addClass('clsRequired');
+            $('#ReqJobDescription').addClass('clsRequired');
+            $('#ReqWorkDate').addClass('clsRequired');
+            $('#ReqAdType').addClass('clsRequired');
+            $('#ReqPaymentMethod').addClass('clsRequired');
+        }
+
+        function AddReqClassOnStart()
+        {
+            ClearReqFields();
+            AddReqClass();
+            $('#ReqStore').addClass('clsRequired');
+            $('#ReqContactPerson').addClass('clsRequired');
+        }
+
+        $('#CustomerType').change(function () {
+            // if customer is residential make the contact person field requried & store hidden
+            // If Either Residential or Commercial Non Billing are selected the Billing address should default to SAME AS LOCATION.
+            // If Commercial Billing is chosen then The default should be Corporate Customer Address.
+
+            //clear fields
+            //$('.widget').each(function () {
+
+            //    if ($(this).attr("id") != "UploadContainer") {
+            //        if ($(this).find('input').parents("#UploadContainer").length == 0) {
+            //            $(this).find('input[type=number]').val('');
+            //            $(this).find('input:[type=hidden]').val('0');
+            //            $(this).find('input:[type=text]').not(':disabled,.ignore').val('');
+            //            $(this).find('textarea').val('');
+            //            $(this).find('input:[type=password]').val('');
+            //            $(this).find('input:[type=checkbox]').prop('checked', false);
+            //            $(this).find('#AddressType').prop('selectedIndex', 0);
+            //            $(this).find('#StateId').prop('selectedIndex', 0);
+            //            $(this).find('#CountyId').prop('selectedIndex', 0);
+            //        }
+            //    }
+            //});
+
+            if ($(this).val() == "1")
+            {
+                AddReqClassOnStart();
+            }
+            if ($(this).val() == "4")
+            {
+                ClearReqFields();
+                AddReqClass();
+                $('#ReqContactPerson').addClass('clsRequired');
+            }
+            if ($(this).val() == "2")
+            {
+                ClearReqFields();
+                AddReqClass();
+            }
+
+            if ($(this).val() == "2") {
+                $('.store').hide();
+                $('#custNameLabel').val("Customer Name");
+                $('#CustomerName').autocomplete("disable");
+                $('#CustomerId').val('');
+                $("#ContactPerson").removeAttr("class");
+                $("#Stores").removeClass("required");
+                $("#ContactPerson").removeAttr("placeholder");
+                $('input[type="radio"][value="1"]').attr('checked', 'checked');
+                $('.rbBilling').attr('disabled', false);
+
+            } else {
+                $('#CustomerName').autocomplete("enable");
+                $('#custNameLabel').val("Customer/Company Name");
+                $('#CustomerId').val('');
+                $('.store').show();
+                $("#Stores").addClass("required");
+                $("#ContactPerson").addClass("required");
+                $("#ContactPerson").attr("placeholder", "Field is required");
+            }
+
+
+            if ($(this).val() == "4") {
+
+                if ($('#IsFirstLine').val() == "true") {
+                    $('.store').hide();
+                    $("#Stores").removeClass("required");
+                }
+
+                $("#Stores").removeAttr("class");
+                $("#Stores").removeAttr("placeholder");
+                $('input[type="radio"][value="1"]').attr('checked', 'checked');
+                $('.rbBilling').attr('disabled', false);
+            }
+
+            if ($(this).val() == "1") {
+                $("#PaymentMethodId").val("7");
+                $('input[type="radio"][value="4"]').attr('checked', 'checked');
+                $('.rbBilling').attr('disabled', true);
+            }
+        });
+
+        $("#AdTypeId").val("7");
+        $("#AdTypeId").prepend("<option value=''></option>");
+        $('#clearButton').click(function () {
+            $('.documentlist').html("");
+            ClearDropDownsOnClearAndAfterSavingCallSlip();
+        });
+        $('#AddBillingAddress').click(function () {
+
+            $('.ReceiptPopup').dialog({
+                title: 'Add Bill To Address',
+                resizable: true,
+                width: $(window).width() - 200,
+                modal: true
+            });
+        });
+
+        $('#JobTypeId').append('<option value="0" selected>Please select job type . . .</option>');
+
+        $('#AdTypeId').change(function () {
+            if ($(this).val() == 16) {
+                $('#OtherOptionRow').show();
+                $('#AdTypeOtherOption').addClass('required');
+            } else {
+                $('#OtherOptionRow').hide();
+                $('#AdTypeOtherOption').removeClass('required');
+                $('#AdTypeOtherOption').val('');
+            }
+        });
+    });
+
+
+
+    function showCustomerInfo()
+    {
+        var customerId = $('#CustomerId').val();
+        if(customerId == "")
+        {
+            Notify("Please Select a Customer first!", "error");
+        }
+        else
+        {
+            GetCusInfo(customerId);
+        }
+
+    }
+
+    function GetCusInfo(cId) {
+
+        var note = "<table class='table table-advance'>";
+        note += "<thead><tr>";
+        note += "<th>Address</th>";
+        note += "<th>City</th>";
+        note += "<th>ZipCode</th>";
+        note += "<th>County</th>";
+        note += "<th>State<th>";
+        note += "</tr></thead>";
+
+        var request = { Id: cId };
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: baseURL + "Customer/GetCustomer",
+            data: JSON.stringify(request),
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else data = msg;
+                if (data.success) {
+
+                    $("#hdnCustomerId").val(data.customer.Id);
+
+                    $("#customerType").val(data.customer.CustomerType);
+
+                    $("#customerName").val(data.customer.FirstName);
+
+                    $("#customerNTEAmount").val(data.customer.nteAmount);
+
+                    $("#customerWebsite").val(data.customer.Website);
+
+                    $("#customerIVR").val(data.customer.IVRNumber);
+
+                    $("#customerIVRPIN").val(data.customer.IVRPin);
+
+                    $('#cActive').prop('checked', data.customer.Active);
+
+                    $('#cCreditWorthy').prop('checked', data.customer.CreditWorthy);
+
+                    $('#customerTaxExempt').prop('checked', data.customer.TaxExempt);
+
+                    $("#customerTaxExemptnumber").val(data.customer.TaxExemptNumber);
+
+                    $('#PreferredMethodOfCommunication').val(data.customer.PreferredMethodOfCummunication);
+
+                    $("iframe").contents().find("body").html("");
+                    $("iframe").contents().find("body").html(data.Notes);
+
+
+                    if (data.customer.Notes != null)
+                        $('#customerNotes').data('tEditor').value(data.customer.Notes);
+                    else
+                        $('#customerNotes').data('tEditor').value("");
+
+                    for (var i = 0; i < data.customer.Addresses.length; i++) {
+                        notes = data.customer.Addresses[i];
+                        note += '<tr>';
+                        note += "<td>"+notes.Address1+"</td>";
+                        note += "<td>"+notes.City+"</td>";
+                        note += "<td>"+notes.ZipPostalCode+"</td>";
+                        note += "<td>"+notes.County+"</td>";
+                        note += "<td>"+notes.State+"</td>";
+                        note += "</tr>";
+                    }
+                    note += "</table>";
+
+                    $('#CustomerAddress').html("");
+                    $('#CustomerAddress').html(note);
+
+                    $('#CustomerInfoPopup').dialog({
+                        title: 'Customer Info',
+                        resizable: false,
+                        minHeight: '700px',
+                        width: '900px',
+                        top: '5px',
+                        left: '224px',
+                        modal: true
+                    });
+
+                }
+                else{
+                    $("#hdnCustomerId").val(data.customer.Id);
+
+                    $("#customerType").val(data.customer.CustomerType);
+
+                    $("#customerName").val(data.customer.FirstName);
+
+                    $("#customerNTEAmount").val(data.customer.nteAmount);
+
+                    $("#customerWebsite").val(data.customer.Website);
+
+                    $("#customerIVR").val(data.customer.IVRNumber);
+
+                    $("#customerIVRPIN").val(data.customer.IVRPin);
+
+                    $('#cActive').prop('checked', data.customer.Active);
+
+                    $('#cCreditWorthy').prop('checked', data.customer.CreditWorthy);
+
+                    $('#customerTaxExempt').prop('checked', data.customer.TaxExempt);
+
+                    $("#customerTaxExemptnumber").val(data.customer.TaxExemptNumber);
+
+                    $('#PreferredMethodOfCommunication').val(data.customer.PreferredMethodOfCummunication);
+
+                    $("iframe").contents().find("body").html("");
+                    $("iframe").contents().find("body").html(data.Notes);
+
+
+                    if (data.customer.Notes != null)
+                        $('#customerNotes').data('tEditor').value(data.customer.Notes);
+                    else
+                        $('#customerNotes').data('tEditor').value("");
+
+                    for (var i = 0; i < data.customer.Addresses.length; i++) {
+                        notes = data.customer.Addresses[i];
+                        note += '<tr>';
+                        note += "<td>"+notes.Address1+"</td>";
+                        note += "<td>"+notes.City+"</td>";
+                        note += "<td>"+notes.ZipPostalCode+"</td>";
+                        note += "<td>"+notes.County+"</td>";
+                        note += "<td>"+notes.State+"</td>";
+                        note += "</tr>";
+                    }
+                    note += "</table>";
+
+                    $('#CustomerAddress').html("");
+                    $('#CustomerAddress').html(note);
+                    $('#SaveUpdateCustomerInfo').hide();
+
+                    $('#CustomerInfoPopup').dialog({
+                        title: 'Customer Info',
+                        resizable: false,
+                        minHeight: '700px',
+                        width: '900px',
+                        top: '5px',
+                        left: '224px',
+                        modal: true
+                    });
+                }
+            },
+            error: function () { CommunicationError(); },
+            complete: function(){
+
+            }
+        });
+    }
+
+    function UpdateCustomerInfo()
+    {
+
+        var CreditWorthy = $("#cCreditWorthy").is(":checked");
+        var TaxExempt = $("#customerTaxExempt").is(":checked");
+        var Active = $("#cActive").is(":checked");
+
+        var request = {
+            Id: $("#hdnCustomerId").val()
+            , nteAmount: $("#customerNTEAmount").val()
+            , FirstName: $("#customerName").val()
+            , CustomerType: $("#customerType").val()
+            , Website: $("#customerWebsite").val()
+            , Active: Active
+            , TaxExempt: TaxExempt
+            , TaxExemptNumber: $("#customerTaxExemptnumber").val()
+            , IVRNumber: $("#customerIVR").val()
+            , IVRPin: $("#customerIVRPIN").val()
+            , Notes: $('#customerNotes').data('tEditor').value()
+            , PreferedCommunicationMethod: $("#PreferredMethodOfCommunication").val()
+            , CreditWorthy: CreditWorthy
+        };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Content("~/Customer/UpdateCustomerFromCallSlip")',
+            data: JSON.stringify(request),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                }
+                else
+                    data = msg;
+                if (data.success) {
+                    Notify(data.message, 'success');
+                }
+                else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () { CommunicationError(); }
+        });
+    }
+
+    function ClearCallSlipFields(){
+        ResetFields();
+        ClearDropDownsOnClearAndAfterSavingCallSlip();
+        ResetCustomerId();
+    }
+
+    function ClearDropDownsOnClearAndAfterSavingCallSlip() {
+        $('#AddressType').val('0');
+        $('#AddressType').val('0');
+        $('#StateId').val('0');
+        $('#CountyId').val('0');
+        $('#EquipmentId').val('8');
+        $('#JobTypeId').val('0');
+        $('#Phone').val('');
+        $('#IsEmergency').prop('checked', false);
+        $('#ContactPerson').val("");
+        $('#PO').val("");
+        $('#WorkOrder2').val("");
+        $('#NTEAmount').val("");
+        $('#CallInBy').val("");
+        $('#JobDescription').val("");
+        $('#taSpecialInstructions').val("");
+        $('#PaymentMethodId').val('0');
+        //$('#CrossStreet').val('');
+        $('#BuzzerCode').val('');
+        $('#StateId').val('0');
+        $('#StateId').css('border', '1px solid black');
+
+        $('#BuzzerCode').val('');
+        $('#PreferedCommunicationMethod').prop('checked', false);
+        $('#AlternatePhone').val("");
+        $('#EquipmentId').val('0');
+    }
+
+    $('#IsEmergency').click(function () {
+        if ($('.IsEmergency:checked').length == $('#IsEmergency').length) {
+            $('#IsEmergency').prop('checked', true);
+            alert(true);
+        }
+    });
+
+    function ResetCustomerId() {
+        CustomerId = 0;
+        //ResetFields();
+        $('#chkOnCreated').attr('checked', false);
+        $('#chkOnCompleted').attr('checked', false);
+    }
+    function onChange_CustomerName(e) {
+
+        var sectionName = $("#CustomerName").data("tAutoComplete").value();
+        var customerId = sectionName.split(',')[1];
+        if (customerId != undefined && customerId.length > 0) {
+            if ($('#CustomerId').val().length < 1) {
+                $('#CustomerId').val(customerId);
+                CustomerId = customerId;
+            }
+            //if ($('#CustomerId').val() > 0) {
+            //    GetCustomerDetailsByStoreNumberOrCustomerId($('#CustomerId').val(), "");
+            //}
+        }
+        else {
+            $('#CustomerId').val('');
+        }
+
+    }
+    function GetCustomerDetailsByStoreNumberOrCustomerId(customerId, storeNumber) {
+        var request = { CustomerId: customerId, StoreNumber: storeNumber };
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/Customer/GetCustomerByStoreNumberOrCustomerId")",
+            data: JSON.stringify(request),
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    if (customerId != "" && storeNumber == "") {//if (!confirm("Are you sure to select this Customer. \nOn wrong selection you can lose your entered data."))
+                        FilleCustomerDetails(data.customer);
+
+                    }
+                    else
+                    {
+
+                        FilleCustomerDetails(data.customer);
+                    }
+                    if (customerId != "" && customerId != null) {
+                        setUpdateCustomerDetailsInCalSlip(data.customer);
+                        if (data.customer.SendCustomerUpdatesDetails) {
+                            updateCustomerPopupShow();
+                        }
+                    }
+
+                    $("#CustomerName").val('');
+                    $("#CustomerName").val(data.CustomerName);
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+
+    //Added By Noman Javed
+    function LoadJobLocationHistory1() {
+        console.log("In LoadJobLocationHistory");
+        var StoreId = $("#StoreId").val();
+        var request = {storeId: StoreId};
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: baseURL + "CallSlip/GetJobLocationHistoryByStoreNumber",
+            data: JSON.stringify(request),
+            global: false,
+            cache: false,
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    PopulateJobHistoryTable1(data.jobs);
+                } else {
+                }
+            },
+
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+
+
+    function PopulateJobHistoryTable1(notes) {
+        console.log("In PopulateJobHistoryTable");
+        var maxLength = 17;
+        $('#CustomerBillingAddress option').text(function(i, text) {
+            if (text.length > maxLength) {
+                return text.substr(0, maxLength) + '...';
+            }
+        });
+        $('#StoreAcitivityContainer').html("");
+        var note = "<strong>3 Months Store Jobs History:</strong><br/><br/>";
+
+
+        note += "<table class='table table-advance' >";
+        note += "<thead><tr>";
+        note += "<th>Id</th>";
+        note += "<th>Expected Date</th>";
+        //note += "<th>City</th>";
+        note += "<th>Description</th>";
+        note += "<th>Primary Contractor</th>";
+        note += "<th>Amt Paid</th>";
+        note += "</tr></thead>";
+
+        if (notes.length > 0) {
+            for (var i = 0; i < notes.length; i++) {
+                var data = notes[i];
+
+                var title = "<b>ID:</b> " + data.Id + " <br /><b>Time:</b> " + data.ExpectedDateTime + " <br /><b>Customer Name:</b> " + data.CustomerName;
+                title += " <br /><b>Store:</b> " + data.StoreLocationName + " <br /><b>Primary Contractor:</b> " + data.PrimaryContractor +
+                     " <br /><b>Amt Paid:</b> " + data.ReceiptTotal + " <br /> <br /><b>State:</b> " + data.State + " <br /><b>Phone:</b> " + data.Phone + " <br /><b>Problem:</b> " + data.JobDescription;
+                //" <br /><b>City:</b> " + data.City + " <br /><b>State:</b> " + data.State + " <br /><b>Phone:</b> " + data.Phone + " <br /><b>Problem:</b> " + data.JobDescription;
+                //title = title.replace("'", "");//Used to replace just one quote char(i.e. first) that caused issue on SP.
+                title = title.replace(/'/g, "");//Replaces all the chars(i.e. single quotes) and issue is solved on SP now.
+                note += '<tr  title="' + title + '" class="htmlSection1">';
+                note += "<td  style='color:" + notes[i].FontColor + "; background-color:" + notes[i].BackgroundColor +
+                    ";'><span  class='htmlSection1'  title='" + notes[i].JobStatus + "'><span style='cursor: pointer;' id = '" + notes[i].Id + "' " +
+                    "onclick = 'LocHistoryPopUp1(" + notes[i].Id + ");'>" + notes[i].Id + "</span></td>";
+                note += "<td>" + notes[i].ExpectedDateTime + "</td>";
+                //note += "<td>" + notes[i].City + "</td>";
+
+                note += "<td> <span  class='htmlSection1'  title='" + notes[i].JobDescription + "'>" + notes[i].JobDescription.substring(0, 17) + '...' + "</span></td>";
+                note += "<td>" + (notes[i].PrimaryContractor != null ? notes[i].PrimaryContractor : "") + "</td>";
+                note += "<td>$ " + parseFloat(notes[i].ReceiptTotal).toFixed(2) + "</td>";
+                note += "</tr>";
+            }
+        } else {
+            note += "<tr><td colspan='5'><h4 style='color:red;'>No record found.</h4></td></tr>";
+        }
+        note += "</table>";
+        $('#StoreAcitivityContainer').html(note);
+        $('#StoreAcitivityContainer').show();
+
+
+        $('.htmlSection1').tooltip({
+            content: function () {
+                return this.getAttribute("title");
+            },
+        });
+    }
+
+    function LocHistoryPopUp1(callslipId) {
+        var details = null;
+        var request = { CallSlipId: callslipId };
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: baseURL + "Home/GetJobLocHistory",
+            data: JSON.stringify(request),
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    details = data;
+                }
+                else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            },
+            complete: function(){
+                if(details != null){
+                    //var myPos = { at: "center bottom", of: $("#StoreAcitivityContainer")};
+
+                    var array = details.message;
+                    var decription = details.description != null ? details.description : "";
+                    var note = "<div style='margin: 10px;' ><b>Job Description:</b>&nbsp &nbsp" + decription + "<br></div>";
+                    note += "<table class='table table-advance'>";
+                    note += "<thead><tr><th>Job Notes  ";
+                    note += "</th></tr></thead>";
+
+                    if (array.length > 0) {
+
+                        for (var i = 0; i < array.length; i++) {
+                            //var data = array[i];
+                            note += "<tr><td>" + array[i].Notes + "<b><span class='notesAuthor pull-right'>[" + array[i].CreatedOn +
+                                " - " + array[i].CreatedBy + "]</span></b></td></tr>";
+                        }
+                    }
+                    else {
+                        note += "<tr><td colspan='6'><h4 style='color:red;'>No Notes for This Job  exists.</h4></td></tr>";
+                    }
+                    note += "</table>";
+
+                    //$('#JobLocHistoryPopupMenu1').html(note);
+                    $('#JobLocHistoryPopupMenu1').dialog({
+                        title: 'Job Location History',
+                        height : $(window).height() - 200,
+                        width: $(window).width() - 500,
+                        position: ["center","center"],
+                        //display: 'block',
+                        modal: true,
+                        resizable: true,
+                        close: function(){
+                            $(this).dialog('destroy');
+                        },
+                        open:function(){
+                            $('#JobLocHistoryPopupMenu1').html("");
+                            $('#JobLocHistoryPopupMenu1').html(note);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function FilleCustomerDetails(customer) {
+        if (customer.isWarranty == true) {
+            $('#callSlipWarrantyBanner').dialog({
+                title: 'POSSIBLE WARRANTY',
+                height: $(window).height() - 670,
+                width: $(window).width() - 1300,
+                resizable: true,
+                modal: true,
+                buttons: [
+                        {
+                            text: "Ok",
+                            id: "btnOkCallSlipWarrantyBanner",
+                            click: function () {
+                                $(this).dialog('close');
+                            }
+                        }],
+                close: function (event, ui) {
+                    $(this).dialog('destroy');
+                    $('.POEstimatePopup').html("");
+                },
+                open: function () {
+                    $('#btnOkCallSlipWarrantyBanner').addClass("btn btn-danger btn-large");
+                }
+            });
+            var bannerJobDescription = "<h4 style='margin-left:10px;'>" + "Last Job Description: " + "</h4>";
+            bannerJobDescription += "<p style='margin: -10px 10px 10px 10px;'>" + customer.JobDescription + " </p>";
+            $('#callSlipWarrantyBanner').html(bannerJobDescription);
+        }
+        CustomerId = customer.Id;
+        $('#CustomerId').val(customer.Id);
+        $('#AddressId').val(customer.AddressId);
+        $('#CustomerType').val(customer.CustomerType);
+        if (customer.CustomerType == 2) {
+            $('.store').hide();
+        } else {
+            $('.store').show();
+        }
+        $('#Email').val(customer.Email);
+        if (customer.Salutation == null) {
+            $("#Salutation").val("NotSpecified");
+        } else {
+            $("#Salutation").val(customer.Salutation);
+        }
+        var CustomerDescrition = customer.CustomerDescription != null ? customer.CustomerDescription : "";
+        if (CustomerDescrition != "")
+            CustomerDescrition = CustomerDescrition.replace(/\r?\n/g, '<br />');
+        if ($('#JobDescription').data('tEditor').value() == "")// $('#JobDescription').val() == "")
+            $('#JobDescription').data('tEditor').value(CustomerDescrition); $('#JobDescription').val('\n' + CustomerDescrition);
+
+        var specialInstructions = customer.SpecialInstructions != null ? customer.SpecialInstructions : "";
+        if (specialInstructions != "")
+            specialInstructions = specialInstructions.replace(/\r?\n/g, '<br />');
+        if ($('#taSpecialInstructions').val() == "")
+            $('#taSpecialInstructions').val('\n' + specialInstructions);
+
+        $('#Address').val(unescape(customer.Address1));
+        //$('#CrossStreet').val(unescape(customer.CrossStreet));
+        $('#Zip').val(customer.Zip);
+        $('#City').val(unescape(customer.City));
+
+        $('#CountryId').val(customer.CountryId);
+        var get = GetStatesByCountry($("#CountryId"),'#StateId','#CountyId')
+        $.when(get).done(function(){
+
+            $('#StateId').val(customer.StateId);
+            $('#CountyId').val(customer.CountyId);
+        });
+        //setTimeout(function(){
+        //    $('#StateId').val(customer.StateId);
+        //    $('#CountyId').val(customer.CountyId);
+        //}, 3000);
+        $('#Phone').val(customer.Phone);
+        $('#AddressType').val(customer.AddressType);
+        $('#ExistingBillingAddresses').html("");
+        //$('#PreferedCommunicationMethod').prop('checked', customer.SendCustomerUpdatesDetails);
+        //$('#NotificationName').val(customer.customerNotificationName);
+        //$('#NotificationEmail').val(customer.customerNotificationEmail);
+        //$('#chkOnCreated').prop('checked', customer.SendUpdateOnJobCreated);
+        //$('#chkOnCompleted').prop('checked', customer.SendUpdateOnJobCompleted);
+
+
+        var options = "<option value='0'>-- select existing --</option>";
+        if (customer.Addresses.length > 0) {
+            for (var i = 0; i < customer.Addresses.length; i++) {
+                $('#ExistingBillingAddresses').html("");
+                options += "<option value='" + customer.Addresses[i].Id + "'>" + unescape(customer.Addresses[i].Address1) + " " + unescape(customer.Addresses[i].CrossStreet) + " " + customer.Addresses[i].ZipPostalCode + " " + unescape(customer.Addresses[i].City) + "</option>";
+            }
+        }
+        $('#ExistingBillingAddresses').html(options);
+        if ((customer.CustomerType == 2) || (customer.CustomerType == 4)) {
+            $('.rbBilling').attr('disabled', false);
+            $('input[type="radio"][value="1"]').attr('checked', 'checked');
+        }
+    }
+
+    function onChange_StoreNumber(e) {
+        var sectionName = $("#Stores").data("tAutoComplete").value();
+        //if (sectionName.length > 0) {
+        //    $('#StoreId').val(sectionName);
+        //    GetCustomerDetailsByStoreNumberOrCustomerId("", sectionName);
+        //}
+
+    }
+    function onUpload(e) {
+        //e.data = { 'DocumentType': 3 };
+        if ($('#WO').attr('checked') ? true : false) {
+
+            var checkedValue = 'WorkOrder';
+            e.data = {
+                check: checkedValue
+            };
+        }
+        else if ($('#Inv').attr('checked') ? true : false) {
+
+            var checkedValue = 'Invoice';
+            e.data = {
+                check: checkedValue
+            };
+        }
+        else if ($('#SO').attr('checked') ? true : false) {
+
+            var checkedValue = 'SO';
+            e.data = {
+                check: checkedValue
+            };
+        }
+        else if ($('#Pic').attr('checked') ? true : false) {
+
+            var checkedValue = 'Picture';
+            e.data = {
+                check: checkedValue
+            };
+        }
+        else if ($('#Other').attr('checked') ? true : false) {
+
+            var checkedValue = 'Other';
+            e.data = {
+                check: checkedValue,
+                otherval: $('#OtherText').val()
+            };
+        }
+        else {
+            e.preventDefault();
+            Notify("Please select a Type","error");
+
+        }
+    }
+    function onSuccess(e) {
+        if (e.response.success) {
+            var Id = e.response.POId;
+            if (Id > 0) {
+                $('#POId').val(e.response.POId);
+            }
+            //$('#addDocumentToCallslip').attr("disabled", "disabled");
+            $("#addDocumentToCallslip").prop('value', e.response.FileName);
+        }
+    }
+    function onRemove(e) {
+        e.data = { 'POId': $('#POId').val() };
+    }
+
+
+    function AddDocumentPopup() {
+        $('#DocumentPopup').dialog({
+            title: 'Add Documents',
+            resizable: true,
+            width: '330px',
+            modal: true,
+            open: function (event, ui) {
+                $("#DocumentPopup").children().find('ul').remove();
+            }
+        });
+
+        $('#Other').click(function () {
+
+            if ($('#Other').is(':checked')) {
+                $('#OtherText').show();
+            }
+            else if ($('#Other').is(':checked') == false) {
+                $('#OtherText').hide();
+            }
+        });
+
+        $('.ho').click(function () {
+
+            $('#OtherText').hide();
+
+        });
+
+        $('#cancelDoc').click(function () {
+            $('#DocumentPopup> input[type=radio]').prop("checked", false);
+            $('#DocumentPopup> input[type=text]').hide();
+            $("#DocumentPopup").dialog("close");
+
+        });
+        $('#ConfirmDoc').click(function () {
+            $('#DocumentPopup> input[type=radio]').prop("checked", false);
+            $('#DocumentPopup> input[type=text]').hide();
+            $("#DocumentPopup").dialog("close");
+        });
+    }
+
+
+    function ServiceSelected(id, ctlr) {
+        if ($(ctlr).is(':checked')) {
+            if ($('#CallSlipId').val().length > 0) {
+                var request = {
+                    ServiceId: id,
+                    CallSlipId: $('#CallSlipId').val(),
+                    Quantity: $('#QuantityBox').val()
+                };
+                if ($(ctlr).parents('tr').find('.QuantityBox').val().length < 1) {
+                    Notify('Quantity can not be empty.', 'error');
+                    return false;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Content("~/CallSlip/SaveService")',
+                    contentType: 'application/json, charset=utf-8',
+                    data: JSON.stringify(request),
+                    success: function (msg) {
+                        var data;
+                        if (msg.hasOwnProperty("d")) {
+                            data = msg.d;
+                        } else
+                            data = msg;
+                        if (data.success) {
+                            var newService = '<tr><td><button onclick="DeleteServiceMapped(' + data.service.ServiceMappedID + ')" class="btn btn-danger"><i class="icon-trash "></i></button>' +
+                                '</td><td>' + data.service.Name + '</td><td>' + data.service.Price + '</td><td>' + data.service.Quantity + '</td></tr>';
+                            $('#selectedServices tbody').append(newService);
+
+                        } else {
+                            Notify(data.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        CommunicationError();
+                    }
+                });
+            } else {
+                Notify('job cannot be created, please create call slip first.', 'error');
+            }
+        }
+    }
+    function DeleteServiceMapped(id) {
+        var request = { ServiceID: id, CallSlipId: $('#CallSlipId').val() };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Content("~/CallSlip/DeleteService")',
+            contentType: 'application/json, charset=utf-8',
+            data: JSON.stringify(request),
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+
+                if (data.success) {
+                    var services = data.service;
+                    var message = data.message;
+                    if (services.length > 0) {
+                        var newService = "";
+                        for (var i = 0; i < services.length; i++) {
+                            newService += '<tr><td><button onclick="DeleteServiceMapped(' + services[i].ServiceMappedID + ')" class="btn btn-danger"><i class="icon-trash "></i></button>' +
+                        '</td><td>' + services[i].Name + '</td><td>' + services[i].service.Price + '</td><td>' + +'</td></tr>';
+                        }
+                        $('#selectedServices tbody').html('');
+                        $('#selectedServices tbody').append(newService);
+                        Notify(message, 'success');
+                    } else {
+                        $('#selectedServices tbody').html('');
+                        $('#selectedServices tbody').html('<tr><td colspan="4"><h3 style="color:red;">No services exist for this job.</h3></td></tr>');
+                        Notify(message, 'success');
+                    }
+
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+    function onServicesDataBinding(e) {
+    }
+    function onCUBDataBinding(e) {
+        var searchModel = {
+        };
+        e.data = searchModel;
+    }
+    function RePopulate(id, ctlr) {
+        var request = { CallSlipId: id };
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/CallSlip/GetJobById")",
+            data: JSON.stringify(request),
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    FillCallSlipDetails(data.model);
+
+                    RenderDocuments(data.documents);
+
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+    function FillCallSlipDetails(callslip) {
+        CustomerId = callslip.CustomerId;
+        $('#CallSlipId').val(callslip.Id);
+        $('#CustomerId').val(callslip.CustomerId);
+        $('#CustomerName').val(unescape(callslip.CustomerName));
+        $('#CustomerType').val(callslip.CustomerTypeId);
+        if (callslip.CustomerTypeId == "2") {
+            $('.store').hide();
+        } else {
+            $('.store').show();
+        }
+        $('#cbAutoJob').prop('checked', callslip.IsAuto);
+        $('#JobTypeId').val(callslip.JobTypeId);
+        $('#Stores').val(callslip.StoreNumber);
+        $('#ContactPerson').val(unescape(callslip.ContactPerson));
+        $('#CallInBy').val(callslip.CalledInBy);
+        $('#PaymentMethodId').val(callslip.PaymentMethodId);
+        $('#Email').val(callslip.EmailAddress);
+        $('#BuzzerCode').val(callslip.BuzzerCode);
+        $('#PO').val(callslip.PONumber);
+        $('#AdTypeId').val(callslip.AdTypeId);
+        $('#EquipmentId').val(callslip.EquipmentId);
+        $('#AlternatePhone').val(callslip.AlternatePhone);
+        $('#ServiceAddressFax').val(callslip.Fax);
+        $('#Day').val(callslip.DateIntervalType);
+        $('#ServiceDate').val(callslip.OnDate);
+        $('#ExpectedTime').val(callslip.FromTime);
+        $('#ServiceTimeFrom').val(callslip.FromTime);
+        $('#ServiceTimeTo').val(callslip.ToTime);
+        $('#NTEAmount').val(callslip.NTEAmount);
+        $('#JobDescription').val(unescape(callslip.JobDescription));
+        $('#taSpecialInstructions').val(unescape(callslip.SpecialInstructions));
+
+        if (callslip.DateIntervalType == 3) {
+            $('.range').show();
+            $('#ExpectedTime').hide();
+            $('.tLabel').hide();
+        } else {
+            $('.range').hide();
+            $('#ExpectedTime').show();
+            $('.tLabel').show();
+        }
+        if (callslip.IsAuto) {
+            $('#Year').val(callslip.Year);
+            $('#Model').val(callslip.Model);
+            $('#Make').val(callslip.Make);
+            $('#Color').val(callslip.Color);
+            $('.auto-fields').fadeIn('slow');
+        } else {
+            $('.auto-fields').fadeOut('slow');
+        }
+        if (callslip.AdTypeId == 16) {
+            $('#OtherOptionRow').show();
+            $('#AdTypeOtherOption').val(callslip.AdTypeOtherOption);
+        }
+        else {
+            $('#OtherOptionRow').hide();
+            $('#AdTypeOtherOption').val('');
+        }
+        $('#Phone').val(callslip.Phone);
+        $('#Address').val(unescape(callslip.Address));
+        $('#Zip').val(callslip.ZipCode);
+        $('#StateId').val(callslip.StateId);
+        //address type column
+        $('#AddressType').val(callslip.AddressTypeId);
+
+        $('#City').val(unescape(callslip.City));
+        $('#CountyId').val(callslip.CountyId);
+        //$('#CrossStreet').val(unescape(callslip.Street));
+
+        $('#WorkOrder2').val(callslip.WorkOrder2);
+
+    }
+    function SaveCallType(calltypeid) {
+        var request = { CallTypeId: calltypeid };
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/CallSlip/SaveCallType")",
+            data: JSON.stringify(request),
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    Notify(data.message, 'success');
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+    function refreshcubGrid() {
+        var grid = $("#callslip-cub-grid").data("tGrid");
+        grid.ajaxRequest();
+    }
+    var CustomerId = "";
+    function RenderDocuments(documents) {
+        if (documents.length > 0) {
+            var documentslist = "<ul id='docList'>";
+            for (var i = 0; i < documents.length; i++) {
+                documentslist += "<li><a style='width:200px;' target='_blank' href='/Documents/PurchaseOrders/" + documents[i].Title + "'>" + documents[i].Title + "</a>" +
+                    "<a onclick='DeleteDocumentByCallSlipIdDocumentId(" + documents[i].Id + ");return false;' class='btn btn-danger'><i class='icon-trash'></i></a></li>";
+            }
+            documentslist += "</ul>";
+            $('.documentlist').html("");
+            $('.documentlist').html(documentslist);
+            $('.documentlist').show();
+        } else {
+            $('.documentlist').html("");
+        }
+
+    }
+    function DeleteDocumentByCallSlipIdDocumentId(docId) {
+        var request = { CallSlipId: $('#CallSlipId').val(), DocumentId: docId };
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/CallSlip/DeleteDocument")",
+            data: JSON.stringify(request),
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    RenderDocuments(data.documents);
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+
+    function CloseBillToPopup() {
+        $('.ReceiptPopup').dialog("close");
+    }
+    function SaveBillToAddress() {
+        $('.ReceiptPopup').dialog("close");
+    }
+
+    //$('#CustomerName').keyup(function () {
+    //    if ($(this).val() == "") {
+    //        CustomerId = "";
+    //    }
+    //});
+
+    $('#CustomerName').autocomplete({
+
+        source: function (request, response) {
+
+            var ctype = $('#CustomerType').val();
+
+            $.ajax({
+                url: '@Url.Content("~/Customer/GetAutocompleteCustomers")',
+                data: { CustomerType: ctype, query: request.term },
+                dataType: 'json',
+                type: 'GET',
+                global: false,
+                success: function (data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item.FirstName,
+                            value: item.Id,
+                            hasStores: item.HasStores,
+                            addressId: item.AddressId
+                        };
+                    }));
+                    if (data.length == 0) {
+                        var tst = $('#CustomerName').val();
+                        ResetCustomerId();
+                        //$('#CustomerName').val(request.term);
+                        $('#CustomerName').val(tst);
+
+                    }
+                }
+            });
+        },
+
+        focus: function (event, ui) {
+            $('#CustomerName').val(ui.item.label);
+            event.preventDefault();
+        },
+
+        select: function (event, ui) {
+            event.preventDefault();
+            CustomerId = ui.item.value;
+            $('#AddressId').val(ui.item.addressId);
+            if (!ui.item.hasStores) {
+                GetCustomerDetailsByStoreNumberOrCustomerId(CustomerId, "");
+            }
+            else {
+                GetUpdateCustomerDetailsInCallSlip(CustomerId);
+            }
+            $('#CustomerId').val(ui.item.value);
+            $('#CustomerName').val(ui.item.label);
+
+            var Id = ui.item.value;
+
+            if(@ViewBag.OverrideCreditWorthyCheck != 1)
+            {
+                checkCreditWorthy(Id);
+            }
+            GetCustomerProjects(CustomerId);
+        },
+
+        minLength: 2
+    });
+
+
+    function GetCustomerProjects(Id)
+    {
+        var request = { CustomerId : Id }
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/Customer/GetProjects")",
+            data: JSON.stringify(request),
+            dataType: "json",
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    if(data.projects.length > 0)
+                    {
+                        $('#projectRow').show();
+                        var ele = document.getElementById('projs');
+                        for (var i = 0; i < data.projects.length; i++) {
+                            // POPULATE SELECT ELEMENT WITH JSON.
+                            ele.innerHTML = ele.innerHTML +
+                                '<option value="' + data.projects[i].Value + '">' + data.projects[i].Text + '</option>';
+                        }
+                        Notify('Customer have projects. Please select a Project.', 'success');
+                    }
+                    else
+                    {
+                        $('#projectRow').hide();
+                    }
+                    //Notify(data.message, 'success');
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+
+                CommunicationError();
+            }
+        });
+    }
+
+    function checkCreditWorthy(Id)
+    {
+        var creditworthy;
+        var request = { CustomerId : Id }
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/Customer/CheckCreditWorthy")",
+            data: JSON.stringify(request),
+            success: function (data) {
+                if(data.success)
+                {
+                    creditworthy = data.Worthy;
+                    if (creditworthy == 0) {
+                        Notify("Customer is not Credit Worthy!", "error");
+                    }
+                }
+            }
+        });
+    }
+
+
+    $('#Stores').autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                url: '@Url.Content("~/Customer/GetStoresonCallSlip")',
+                data: { query: request.term, CustomerId: $('#CustomerId').val() },
+                dataType: 'json',
+                type: 'GET',
+                global:false,
+                success: function (data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item.FirstName,
+                            value: item.Id
+                        };
+                    }));
+                }
+            });
+        },
+        focus: function (event, ui) {
+
+            $('#Stores').val(ui.item.label);
+            event.preventDefault();
+        },
+        select: function (event, ui) {
+
+            GetCustomerDetailsByStoreNumberOrCustomerId("", ui.item.value);
+            $('#StoreId').val(ui.item.value);
+            $('#Stores').val(ui.item.label);
+            LoadJobLocationHistory1();
+            return false;
+        },
+        minLength: 1
+    });
+
+    function GetCustomerInformationByPhone() {
+        if ($('#Phone').val().length < 1) {
+            CustomerId = 0;
+            $('#CustomerId').val(0);
+            $('#AddressId').val(0);
+            $('#ExistingBillingAddresses').html("");
+            Notify("Phone number can't be empty.", "error");
+        } else {
+            $.ajax({
+                url: '@Url.Content("~/Customer/GetCustomerInformationByPhone")',
+                data: { Phone: $('#Phone').val() },
+                dataType: 'json',
+                type: 'GET',
+                success: function (msg) {
+                    var data;
+                    if (msg.hasOwnProperty("d")) {
+                        data = msg.d;
+                    } else
+                        data = msg;
+                    if (data.success) {
+                        FilleCustomerDetails(data.customer);
+                        $("#CustomerName").val('');
+                        $("#CustomerName").val(data.CustomerName);
+                        $("#StoreId").val(data.StoreId);
+                        $("#Stores").val(data.StoreNumber);
+                    } else {
+                        Notify(data.message, 'error');
+                    }
+                },
+                error: function () {
+                    CommunicationError();
+                }
+            });
+        }
+    }
+
+    function GetEquipments() {
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/Equipment/GetEquipments")",
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    RenderEquipments(data.model);
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+
+    function RenderEquipments(cats) {
+        var categories = "";
+        if (cats.length > 0) {
+            for (var i = 0; i < cats.length; i++) {
+                categories += "<optgroup label='" + cats[i].Name + "'>";
+                if (cats[i].Equipments.length > 0) {
+                    for (var j = 0; j < cats[i].Equipments.length; j++) {
+                        if (cats[i].Equipments[j].Id == 8) {
+                            categories += "<option value='" + cats[i].Equipments[j].Id + "' selected>" + cats[i].Equipments[j].Name + "</option>";
+                        }
+                        else {
+                            categories += "<option value='" + cats[i].Equipments[j].Id + "'>" + cats[i].Equipments[j].Name + "</option>";
+                        }
+                    }
+                }
+                categories += "</optgroup>";
+            }
+        }
+        $("#EquipmentId").empty().append(categories);
+        $('#EquipmentId option[value="8"]').prependTo("#EquipmentId");
+        $('#EquipmentId').val('8');
+    }
+
+    function AppendEquipments(equipments) {
+
+        var categories = "";
+
+        if (equipments.length > 0) {
+            for (var j = 0; j < equipments.length; j++) {
+                if (equipments[j].Id == 8) {
+                    categories += "<option value='" + equipments[j].Id + "' selected>" + equipments[j].Name + "</option>";
+                }
+                else {
+                    categories += "<option value='" + equipments[j].Id + "'>" + equipments[j].Name + "</option>";
+                }
+            }
+        }
+
+
+
+        $("#EquipmentId").empty().append(categories);
+        $('#EquipmentId option[value="8"]').prependTo("#EquipmentId");
+        $('#EquipmentId').val('8');
+    }
+
+    //$('#EquipmentId').change(function () {
+    //    $("#JobDescription").val($("#JobDescription").val() + ' ' + $(this).find('option:selected').text());
+    //});
+
+    $('#Phone').autocomplete({
+
+        source: function (request, response) {
+            //
+            //var req = request.term.toString().replace(/[^0-9]/g, '');
+            $.ajax({
+                url: '@Url.Content("~/Customer/GetCustomerPhoneNumbers")',
+                //data: JSON.stringify(query: request.term),
+                data: { query: request.term },
+                dataType: 'json',
+                type: 'GET',
+                global:false,
+                success: function (data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item.FirstName,
+                        };
+                    }));
+                }
+            });
+        },
+        select: function (event, ui) {
+            $('#Phone').val(ui.item.label);
+            GetCustomerInformationByPhone();
+            return false;
+        },
+        minLength: 3
+    });
+
+    $('#CustomerType').change(function () {
+
+        if ($(this).val() == "4") {
+            $("#AdTypeId").val("");
+            $('#PaymentMethodId').val("");
+            if ($('#IsFirstLine').val() == "true")
+                $('#Stores').hide();
+        }
+        if ($(this).val() == "2") {
+            $("#AdTypeId").val("");
+            $('#PaymentMethodId').val("");
+            if (!$('#Stores').is(':visible'))
+                $('#Stores').show();
+        }
+        if ($(this).val() == "1") {
+            $("#AdTypeId").val(7);
+            if (!$('#Stores').is(':visible'))
+                $('#Stores').show();
+        }
+
+        var isAutoChecked = $('#cbAutoJob').is(':checked');
+
+        if (!isAutoChecked) {
+            var custType = this.value;
+            EquipmentsBasedonCustomerType(custType);
+        }
+    });
+
+
+
+    function EquipmentsBasedonCustomerType(custType) {
+        if (custType == '1' || custType == '4') {//Commercial
+            GetCommercialEquipments();
+            $("#JobDescription").val("");
+
+        }
+        else {//Residential = 2
+            GetResidentialEquipments();
+            $("#JobDescription").val("");
+        }
+    }
+
+    function GetResidentialEquipments() {
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/Equipment/GetResidentialEquipments")",
+            global:false,
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    AppendEquipments(data.list);
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+
+    function GetCommercialEquipments() {
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: "@Url.Content("~/Equipment/GetCommercialEquipments")",
+            global:false,
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else
+                    data = msg;
+                if (data.success) {
+                    RenderEquipments(data.model);
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+
+    $('#cbAutoJob').change(function () {
+        $("#JobDescription").val("");
+        AutoCheckBoxChangeEvent();
+    });
+
+    function AutoCheckBoxChangeEvent() {
+        var isAutoChecked = $('#cbAutoJob').is(':checked');
+        if (isAutoChecked) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/json, charset=utf-8",
+                url: "@Url.Content("~/Equipment/GetAutoEquipments")",
+                global:false,
+                success: function (msg) {
+                    var data;
+                    if (msg.hasOwnProperty("d")) {
+                        data = msg.d;
+                    } else
+                        data = msg;
+                    if (data.success) {
+                        AppendEquipments(data.list);
+                    } else {
+                        Notify(data.message, 'error');
+                    }
+                },
+                error: function () {
+                    CommunicationError();
+                }
+            });
+        }
+        else {
+            var custval = $('#CustomerType').val();
+            EquipmentsBasedonCustomerType(custval);
+        }
+    }
+
+    //Move cursor at start if field does not have any digits in acc with task #728 on the task sheet
+    $("#Phone").click(function () {
+
+        var number = $(this).val().replace(/[^0-9]/g, '');
+        if (number != null) {
+            if (!(number.length > 0)) {
+                $(this).prop('selectionStart', 1);
+                $(this).prop('selectionEnd', 1);
+            }
+        }
+    });
+
+    </script>

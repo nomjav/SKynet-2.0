@@ -1,0 +1,13 @@
+﻿button.btn{
+    font-size:11px;
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+    font-size: 11px;
+}
+table {
+    font-size: 12px;
+}
+thead {
+    background-color: #dfe0e6;
+}

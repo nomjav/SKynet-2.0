@@ -1,0 +1,196 @@
+﻿<div class="checkout-wrap">
+    <ul class="checkout-bar">
+
+        <li class="accepted">
+            <span class="listElement acceptedText hiddenelement"></span>
+            <span class="listElement acceptedText">Accepted</span>
+        </li>
+
+        <li class="dispatched">
+            <span class="listElement dispatchedText hiddenelement"></span>
+            <span class="listElement dispatchedText">Dispatched</span>
+        </li>
+
+        <li class="delayed">
+            <span class="listElement delayedText hiddenelement"></span>
+            <span class="listElement delayedText">Delayed</span>
+        </li>
+
+        <li class="complete">
+            <span class="listElement completeText hiddenelement"></span>
+            <span class="listElement completeText">Complete</span>
+        </li>
+
+    </ul>
+</div>
+
+
+<input id="progressStatus" type="hidden" value="" />
+<input id="UpdateType" type="hidden" value="" />
+
+
+<style type="text/css">
+    .hiddenelement {
+        cursor: pointer;
+        height: 19px;
+        left: 40%;
+        line-height: 20px;
+        position: absolute;
+        top: -21px;
+        width: 19px;
+        z-index: 99999;
+    }
+
+    .accepted {
+    }
+
+    .acceptedText {
+    }
+
+    .dispatched {
+    }
+
+    .dispatchedText {
+    }
+
+    .delayed {
+    }
+
+    .delayedText {
+    }
+
+    .complete {
+    }
+
+    .completeText {
+    }
+
+    .diabled {
+    }
+
+    .listElement {
+    }
+</style>
+<link href="~/css/checkoutprogressbar.css" rel="stylesheet" />
+<script type="text/javascript">
+    var listElement = null;
+    var isFromProgressBar = false;
+    var updateInEmail = false;
+    $(document).ready(function () {
+
+        $('.checkout-bar').on("mouseover", ".listElement", function () {
+            if ($(this).parent('li').hasClass('disabled')) {
+                $(this).css('cursor', 'not-allowed');
+            }
+            else {
+                $(this).css('cursor', 'pointer');
+            }
+        });
+
+        $('.checkout-bar').on('click', '.listElement', function () {
+
+            isFromProgressBar = true;
+            var currentStep = '';
+            if ($(this).hasClass('hiddenelement')) {
+                currentStep = $(this).siblings('span').text();
+            }
+            else {
+                currentStep = $(this).text();
+            }
+
+            listElement = $(this).parent('li');
+            $('#progressStatus').val(currentStep);
+
+            if (listElement.hasClass('active')) {
+                ConfirmUpdateAction(listElement, true, $('#UpdateType').val());
+            }
+            else if (listElement.hasClass('visited')) {
+                if ($('#UpdateType').val() == 'p' || $('#UpdateType').val() == 'pe') {
+                    if (hasWebAddress == "true") {
+                        showWebAddressDialog();
+                    }
+                    else {
+                        showCustomerUpdateMsgBox();
+                    }
+                }
+                else if ($('#UpdateType').val() == 'e') {
+                    updateInEmail = true;
+                    showCustomerUpdateMsgBox();
+                }
+            }
+            else {
+                //do nothing
+            }
+        });
+    });
+
+    function ConfirmUpdateAction(ctrl, isundo, updateType) {
+        $("<div></div>").dialog({
+            title: "Please confirm",
+            buttons: [{
+                text: "Yes",
+                id: "btnConfirm",
+                click: function () {
+                    ToggleCustomerUpdate(ctrl, isundo, updateType);
+                    $(this).dialog("close");
+                }
+            }, {
+                text: "No",
+                id: "btnCancel",
+                click: function () {
+                    $(this).dialog("destroy");
+                }
+            }],
+            open: function () {
+                StyleWarningDiagle($(this));
+                $(this).html("<div class='warning'><h2>Undo Update Button?</h2></div>");
+                $('#btnConfirm').removeAttr("class");
+                $('#btnCancel').removeAttr("class");
+                $('#btnConfirm').addClass("btn btn-success");
+                $('#btnCancel').addClass("btn btn-danger");
+            }
+        });
+    }
+
+    function ToggleCustomerUpdate(ctrl, isundo, updateType) {
+        var request = { CallSlipId: $('#CallSlipId').val(), ProgressStatus: $('#progressStatus').val(), IsUndo: isundo, UpdateType: updateType };
+        $.ajax({
+            type: "POST",
+            contentType: "application/json, charset=utf-8",
+            url: baseURL + "Home/ToggleCustomerUpdate",
+            data: JSON.stringify(request),
+            global: false,
+            cache: false,
+            success: function (msg) {
+                var data;
+                if (msg.hasOwnProperty("d")) {
+                    data = msg.d;
+                } else data = msg;
+                if (data.success) {
+                    if (isundo) {
+                        if (ctrl.hasClass('active')) {
+                            ctrl.removeClass('active');
+                        }
+                        ctrl.addClass('visited');
+                    }
+                    else {
+                        if (ctrl.hasClass('visited')) {
+                            ctrl.removeClass('visited');
+                        }
+                        ctrl.addClass('active');
+                    }
+                    updateInEmail = false;
+                    isFromProgressBar = false;
+                    //GetEmailsLogsByCustomerId();
+                } else {
+                    Notify(data.message, 'error');
+                }
+            },
+            error: function () {
+                CommunicationError();
+            }
+        });
+    }
+
+
+</script>

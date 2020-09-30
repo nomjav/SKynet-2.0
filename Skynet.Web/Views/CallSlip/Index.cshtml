@@ -1,0 +1,244 @@
+﻿@model Skynet.Service.ViewModels.CallSlipModel
+
+@{
+    ViewBag.Title = "Call Slip";
+    var isFirstLine = false;
+    ViewBag.Version = "?9";
+}
+
+
+
+@section Scripts{
+
+    @await Html.PartialAsync("JSONScripts/CallSlip")
+
+    <script src="~/UserScripts/CallSlip.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#IsFirstLine').val(false);
+
+            //fetch details
+            var jobID = getParameterByName("DuplicateOf");
+            var cName = getParameterByName("customerName");
+            var ph = getParameterByName("ph");
+            //alert(jobID);
+            if (jobID != null && cName == null && ph == null)
+            {
+                var request = { CallSlipId: jobID };
+
+                var jobdata =  $.ajax({
+                    type: "POST",
+                    contentType: "application/json, charset=utf-8",
+                    url: baseURL + "Home/GetJobDetailsById",
+                    data: JSON.stringify(request),
+                    //global: false,
+                    cache: false,
+                    success: function (msg) {
+                        var data;
+                        if (msg.hasOwnProperty("d")) {
+                            data = msg.d;
+                        } else
+                            data = msg;
+                        if (data.success) {
+                            SetCallSlipDetails(data);
+                            //LoadZipCodes();
+                        } else {
+                            Notify(data.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        CommunicationError();
+                    }
+                });
+            }
+            if (jobID == null && cName != null && ph != null) {
+                var request = { customerName: cName, phone: ph };
+                var jobdata = $.ajax({
+                    type: "POST",
+                    contentType: "application/json, charset=utf-8",
+                    url: baseURL + "Home/SetCallSlip",
+                    data: JSON.stringify(request),
+                    //global: false,
+                    cache: false,
+                    success: function (msg) {
+                        var data;
+                        if (msg.hasOwnProperty("d")) {
+                            data = msg.d;
+                        } else
+                            data = msg;
+                        if (data.success) {
+
+                            SetCallSlipDetails(data);
+                            //LoadZipCodes();
+                            $('#Stores').val('');
+                            $('#Phone').focus();
+                            if ($('#Phone').val() != undefined || $('#Phone').val() != "")
+                            GetCustomerInformationByPhone();
+
+                        } else {
+                            Notify(data.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        CommunicationError();
+                    }
+                });
+            }
+
+
+        });
+
+
+
+        //$('#Zip').autocomplete({
+        //    source: function (request, response) {
+
+        //        $.ajax({
+        //            url: baseURL + "Customer/LoadZipCodes1",
+        //            data: { query: request.term },
+        //            dataType: 'json',
+        //            type: 'GET',
+        //            global: false,
+        //            success: function (data) {
+
+        //                response($.map(data, function (item) {
+        //                    return {
+        //                        label: item.FirstName
+        //                    };
+        //                }));
+        //            }
+        //        });
+        //    },
+        //    select: function (event, ui) {
+        //        $('#Zip').val($.trim(ui.item.label));
+        //        SelectZip();
+        //        return false;
+        //    },
+        //    minLength: 3
+        //});
+
+
+    function SelectZip() {
+
+
+        var sectionName = $("#Zip").val();
+        if (sectionName.length > 0) {
+
+            var selectedItem = sectionName;
+            //var request = "{'zipCode':'" + selectedItem + "'}";
+            var request = {
+                zipCode: selectedItem, CountryId: $("#CountryId").val()
+            };
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify(request),
+                url: "@Url.Content("~/Customer/GetCounty")",
+                contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var msg;
+                if (data.hasOwnProperty("d")) {
+                    msg = data.d;
+                } else
+                    msg = data;
+                PopulateCountyDropDown(msg);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+
+            }
+        });
+
+    }
+    else {
+
+
+    }
+    }
+
+        function SetCallSlipDetails(job)
+        {
+            //setting call slip details
+
+            //$('#CallSlipId').val();
+            $('#CustomerId').val(job.model.CustomerId);
+            $('#AddressId').val(job.model.CustomerAddressId);
+
+            $('#StoreId').val(job.model.StoreId);
+
+            $('#CustomerType').val(job.model.CustomerTypeId);
+            $('#JobTypeId').val(job.model.JobTypeId);
+
+            if (job.model.IsAuto == true)
+            {
+                $('#cbAutoJob').prop('checked', true);
+                $('#Year').val(job.model.Year);
+                $('#Make').val(job.model.Make);
+                $('#Model').val(job.model.Model);
+                $('#Color').val(job.model.Color);
+                $('.auto-fields').fadeIn("slow");
+            }
+
+            $('#CustomerName').val(job.model.CustomerName);
+            $('#Stores').val(job.model.StoreNumber + " - " + job.model.StoreLocationName);
+            $('#CallInBy').val(job.model.CalledInBy);
+            $('#ContactPerson').val(job.model.ContactPerson);
+            $('#PO').val(job.model.PONumber);
+            $('#NTEAmount').val(job.model.NTEAmount);
+            $('#WorkOrder2').val(job.model.WorkOrder2);
+            $('#Address').val(job.model.Address);
+            $('#AddressType').val(job.model.AddressTypeId);
+            $('#City').val(job.model.City);
+            $('#StateId').val(job.model.StateId);
+            $('#Zip').val(job.model.ZipCode);
+            $('#BuzzerCode').val(job.model.BuzzerCode);
+            $('#CountyId').val(job.model.CountyId);
+            $('#CountryId').val(job.model.CountryId);
+            $('#Phone').val(job.model.Phone);
+            $('#AlternatePhone').val(job.model.AlternatePhone);
+            $('#ServiceAddressFax').val(job.model.Fax);
+            $('#Email').val(job.model.EmailAddress);
+            $('#EquipmentId').val(job.model.EquipmentId);
+
+            $('#IsEmergency').prop('checked', job.model.IsEmergency ? true : false);
+            $('#JobDescription').data('tEditor').value(job.model.JobDescription);
+            $('#JobDescription').val(job.model.JobDescription);
+            $('#taSpecialInstructions').val(job.model.SpecialInstructions);
+            $('#ServiceDate').val(job.model.OnDate);
+            $('#Day').val(job.model.DateIntervalType);
+
+            if ($('#Day').val() == "1" || $('#Day').val() == "2") {
+                $('#ExpectedTime').fadeIn(); $('.tLabel').fadeIn();
+                $('.range').fadeOut();
+                $('#ExpectedTime').val(job.model.FromTime);
+            }
+            if ($('#Day').val() == "3") {
+                $('#ExpectedTime').fadeOut();
+                $('.tLabel').fadeOut();
+                $('.range').css('display', 'inline-block');
+                $('#ServiceTimeFrom').val(job.model.FromTime);
+                $('#ServiceTimeTo').val(job.model.ToTime);
+            }
+            $('#AdTypeId').val(job.model.AdTypeId);
+            $('#PaymentMethodId').val(job.model.PaymentMethodId);
+        }
+
+
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+    </script>
+
+}
+
+@await Html.PartialAsync("_CallSlip")
+
+
+@await Html.PartialAsync("_CallUsBack")

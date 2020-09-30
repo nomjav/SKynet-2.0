@@ -1,0 +1,311 @@
+﻿<style>
+    .form-control {
+    height: 30px;
+    font-size: 12px;
+    padding: 1px 5px;
+    width: 80%;
+}
+    .input-group {
+    height: 15px;
+    font-size: 12px;
+    width: 70%;
+}
+
+     .rightalign {
+        text-align: right;
+        padding-right: 10px;
+    }
+
+     .left{
+         width: 70%;
+     }
+
+     .right{
+         width:75%;
+     }
+
+     .THColor{
+             /*background-color: #9bbbdd;*/
+            padding: 10px;
+            /*text-align: center;*/
+     }
+
+</style>
+<div>
+
+    <table style="width:93%; font-size:14px;">
+        <tr>
+            <th colspan="4">
+                <h5 class="THColor">Customer Information</h5>
+            </th>
+        </tr>
+        <tr>
+            <td class="rightalign">Customer Type</td>
+            <td>
+                <select name="select" id="select" class="form-control left">
+                    <option value="0">Commercial Billing</option>
+                    <option value="1">Commercial Non Billing</option>
+                    <option value="2">Resedential</option>
+                </select>
+            </td>
+            <td class="rightalign">Job Type</td>
+            <td>
+                <select name="select" id="select" class="form-control right">
+                    <option value="0">Regional</option>
+                    <option value="1">Corporate</option>
+                    <option value="2">Citibank</option>
+                    <option value="3">Walmart</option>
+                    <option value="4">Project</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Customer/Company</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">Store Number</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Called In By</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">Contact Person</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Purchase Order</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">NTE Amount</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Secondary WO</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">Upload WO</td>
+            <td>
+                <input style="font-size:12px;" type="file" id="file-input" name="file-input" class="form-control-file right">
+            </td>
+        </tr>
+        <tr><td colspan="4"></td></tr>
+        <tr><td colspan="4"></td></tr>
+        <tr>
+            <th colspan="4">
+                <hr /> <h5 class="THColor">Service Address</h5> 
+            </th>
+        </tr>
+        <tr>
+            <td class="rightalign">Street Address</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">Address Type</td>
+            <td>
+                <select name="select" id="select" class="form-control right">
+                    <option value="0">Select One</option>
+                    <option value="1">Business</option>
+                    <option value="2">Residentail</option>
+                    <option value="3">Apartment</option>
+                    <option value="4">Office</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">City</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">State</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Zip</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">Buzzer Code</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">County</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">Country</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Phone</td>
+            <td>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control left phone" placeholder="Phone Search" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" style="font-size:10px; border-radius:3px;" type="button"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+                @*<input type="text" class="form-control left" placeholder="Phone Search" aria-label="Phone Search" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" style="font-size:9px;"><i class="fa fa-search"></i></button>
+                </div>*@
+            </td>
+            <td class="rightalign">Alternate Phone</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right phone">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Fax</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign">Customer Updates</td>
+            <td>
+                <i class="fa fa-envelope"></i>
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Email</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr><td colspan="4"></td></tr>
+        <tr><td colspan="4"></td></tr>
+        <tr>
+            <th colspan="4">
+                <hr /> <h5 class="THColor">Job Details</h5> 
+            </th>
+        </tr>
+        <tr>
+            <td class="rightalign">Equipment</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control left">
+            </td>
+            <td class="rightalign" style="color:red; font-weight:700;">Emergency?</td>
+            <td>
+                <input type="checkbox" id="text-input" name="text-input" class="form-check">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Job Description</td>
+            <td colspan="3">
+                <textarea name="textarea-input" id="textarea-input" rows="9" placeholder="Content..." class="form-control" style="width:90.4%;"></textarea>
+            </td>
+
+        </tr>
+        <tr>
+            <td class="rightalign">Work Date</td>
+            <td>
+                @*<div class="col-12 col-md-2"><input type="text" id="text-input" name="text-input" class="form-control left"></div>
+                <div class="col-12 col-md-1">
+                    <select name="select" id="select" class="form-control">
+                        <option value="0">By</option>
+                        <option value="1">At</option>
+                        <option value="2">Between</option>
+                    </select>
+                </div>*@
+                <div class="input-group mb-3" style="width:73%">
+                    <input type="text" class="form-control left" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <select name="select" id="select" class="form-control">
+                            <option value="0">By</option>
+                            <option value="1">At</option>
+                            <option value="2">Between</option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+            <td class="rightalign">Expected Time</td>
+            <td>
+                <input type="text" id="text-input" name="text-input" class="form-control right">
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">AD Type</td>
+            <td>
+                <select name="select" id="select" class="form-control left">
+                    <option value="0">Select One</option>
+                    <option value="1">Google</option>
+                    <option value="2">Yahoo</option>
+                    <option value="3">Yelp</option>
+                </select>
+            </td>
+            <td class="rightalign">Payment Method</td>
+            <td>
+                <select name="select" id="select" class="form-control right">
+                    <option value="0">Select One</option>
+                    <option value="1">Billing</option>
+                    <option value="2">Cash</option>
+                    <option value="3">Credit</option>
+                    <option value="4">Office</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="rightalign">Billing Address</td>
+            <td>
+                <div class="form-check">
+                    <div class="radio">
+                        <label for="radio1" class="form-check-label ">
+                            <input type="radio" id="radio1" name="radios" value="option1" class="form-check-input">Corporate Customer Address
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label for="radio2" class="form-check-label ">
+                            <input type="radio" id="radio2" name="radios" value="option2" class="form-check-input">Same as Service Address
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label for="radio3" class="form-check-label ">
+                            <input type="radio" id="radio3" name="radios" value="option3" class="form-check-input">Select From Existing
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label for="radio3" class="form-check-label ">
+                            <input type="radio" id="radio3" name="radios" value="option3" class="form-check-input">New
+                        </label>
+                    </div>
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+
+    </table>
+
+    <div class="clearfix"></div>
+
+    <div class="form-group col-md-6" style="float:left;background-color:#dbe0e2;">
+        <button class="btn btn-primary">A</button>
+        <button class="btn btn-success">T</button>
+        <button class="btn btn-danger">S</button>
+        <button class="btn btn-primary">CUB</button>
+    </div>
+
+    <div class="form-group col-md-6" style="float:right; background-color:#dbe0e2;">
+        <button class="btn btn-success">Send</button>
+        <button class="btn btn-danger">Clear</button>
+    </div>
+</div>
+
+

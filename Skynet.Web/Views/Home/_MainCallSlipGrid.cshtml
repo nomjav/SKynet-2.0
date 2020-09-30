@@ -1,0 +1,71 @@
+﻿@using Kendo.Mvc.UI
+
+<style>
+
+    #callslip-grid .k-grid-header .k-header {
+        background-color: #4F9AED;
+        font-weight: 600;
+    }
+
+    #callslip-grid .k-grid-header .k-link {
+        color: white;
+    }
+
+    .k-pager-wrap .k-dropdown {
+        width: 5.5em;
+    }
+</style>
+<br />
+<div class="card text-white" style="  background-color: #52a0f4!important;">
+    <div class="card-header">Dispatch Board</div>
+    <div class="card-body bg-light text-dark" style="font-size:small; padding:1px;">
+
+        @(Html.Kendo().Grid<Skynet.Service.ViewModels.MainCallSlipGridModel>()
+        .Name("callslip-grid")
+        .Columns(columns =>
+        {
+            columns.Bound(x => x.CreatedOn).Title("Date Booked").Sortable(true);
+            columns.Bound(x => x.IsEmergency).Visible(false);
+            columns.Bound(x => x.Id).Width(70).ClientTemplate("<span> #=Id # <b style='color:blue; font-family: serif;'> #=estimateCreated # </b></span>");
+            columns.Bound(x => x.CustomerName).Width(250).ClientTemplate("<a onclick='OpenJob( #= Id # );return false;'  class='customer rowSelector'> #= CustomerName # </a>"); ;
+            //columns.Bound(x => x.CustomerName).Width(300)
+            //   .ClientTemplate(@"<a href='" + @Url.Content("~/") + "Home/ServicePanel/" + "?CallSlipId=<#= Id #>' target = '_blank' style='color: #000;' class='customer rowSelector' ><#= CustomerName #></a>")
+            //  .Width(100)
+            //  .Template(x => Html.ActionLink(x.CustomerName, "ServicePanel", new { CallSlipId = x.Id }, new { target = "_blank", @class = "customer rowSelector" }));
+            columns.Bound(x => x.ExpectedDate).Title("Date").Sortable(true);
+            columns.Bound(x => x.ExpectedDateTime).Title("Time");
+            columns.Bound(x => x.RemainingMinutes).Hidden().HeaderHtmlAttributes(new { @class = "remainingtimeee" }).HtmlAttributes(new { @class = "remainingtimeee" }).Title("Viewed On").ClientTemplate("<span class='RemainingTime' > #= RemainingMinutes # </span>");
+            columns.Bound(x => x.ETA).Title("ETA");
+            columns.Bound(x => x.TimeInCurrentStatus).Title("TCS").Width(60).Sortable(true).Filterable(true);
+            columns.Bound(x => x.JobDescription).Hidden();
+            columns.Bound(x => x.EquipmentName).ClientTemplate("<span class='EquipmentTip'> #= EquipmentName # </span>").Sortable(true);
+            columns.Bound(x => x.PrimaryContractor).Title("Contractor/Tech");
+            columns.Bound(x => x.ContractorBusinessName).Sortable(true).Sortable(true);
+            columns.Bound(x => x.StoreLocationName).Title("Store").Filterable(false);
+            columns.Bound(x => x.City);
+            columns.Bound(x => x.StateAbbreviation).Title("State").Width(50);
+            columns.Bound(x => x.TimeZoneCode).Filterable(false).Title("TZ").Width(50);
+            //columns.Bound(x => x.JobStatus).Template(x => Html.Raw(x.JobStatus))
+            //    .ClientTemplate(@"<#= JobStatus #>").Title("Status").Width(200);
+            columns.Bound(x => x.JobStatusCode).Title("Status").Width(60);
+            columns.Bound(x => x.Id).Visible(false);
+        })
+        .HtmlAttributes(new { style = "height: 680px;" })
+		.Scrollable()
+		.Groupable()
+        .Resizable(resize => resize.Columns(true))
+        .Reorderable(reorder => reorder.Columns(true))
+		.Sortable().EnableCustomBinding(true)
+        .AutoBind(false)
+		.Pageable(pageable => pageable
+			.Refresh(true)
+			.PageSizes(true)
+			.ButtonCount(5))
+        .DataSource(dataSource => dataSource
+            .Ajax().PageSize(50)
+            .Read(read => read.Action("MainCallSlipData", "Home").Data("gridData"))
+        ).Events(e => e.DataBound("onMainGridDataBound").DataBinding("onDBGridDataBinding"))
+        )
+
+    </div>
+</div>

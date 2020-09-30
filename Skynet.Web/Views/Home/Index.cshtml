@@ -1,0 +1,90 @@
+﻿@section Scripts{
+    <script src="~/UserScripts/dispatchboard.js"></script>
+    <script src="~/UserScripts/Home.js"></script>
+<script>
+
+
+
+    function onMainGridDataBound(e) {  
+        var grid = $("#callslip-grid").data("kendoGrid");  
+        var gridData = grid.dataSource.view();  
+        for (var i = 0; i < gridData.length; i++) {  
+            var currentUid = gridData[i].uid;  
+           
+            var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");  
+            $('tr[data-uid="' + currentUid + '"] td:nth-child(17)').css("background-color", gridData[i].BackgroundColor);
+            $('tr[data-uid="' + currentUid + '"] td:nth-child(17)').css("color", gridData[i].FontColor);
+
+            //currentRow.css('background-color', gridData[i].BackgroundColor);
+            //currentRow.css('color', gridData[i].FontColor);  
+        }
+               
+    }
+
+
+    var gridsToBind = [];
+    function onDBGridDataBinding(e) {
+        // to Disable loading on the First Page Load
+        if ($.inArray(131, gridsToBind) == -1) {
+            e.preventDefault();
+            gridsToBind.push(131);
+        }
+    }
+
+    function gridData(e) {
+                var searchModel = {
+                FromDate: $('.action-container #FromDateTime').val(),
+                ToDate: $('.action-container #EndDateTime').val(),
+                SearchType: $("#txtSearchType").val(),
+                cbInState: $('.action-container #cbInState').is(':checked'),
+                cbOutOfState: $('.action-container #cbOutOfState').is(':checked'),
+                cbCitiBank: $('.action-container #cbCitiBank').is(':checked'),
+                cbAissJobs: $('.action-container #cbAissJobs').is(':checked'),
+                cbProjects: $('.action-container #cbProjects').is(':checked'),
+                JobTypeId: $('.action-container #JobTypeId').val(), //-----
+                CustomerTypeId: $('.action-container #CustomerTypeId').val(),
+                JobStatusId: $('.action-container #JobStatusId').val(),
+                //ContractorId: $('.action-container #ContractorId').val(),
+
+                ExpectedFromTime: $('.action-container #ExpectedFromTime').val(),
+                ExpectedToTime: $('.action-container #ExpectedToTime').val(),
+                BookedFromTime: $('.action-container #BookedFromTime').val(),
+                BookedToTime: $('.action-container #BookedToTime').val(),
+                StoreNumber: $('.action-container #ByStoreNumber').val(),
+                StoreLocationName: $('.action-container #ByStoreName').val(),
+                CustomerName: $('.action-container #ByCustomerName').val(),
+                WorkOrder2: $('.action-container #ByCustomerWO').val(),
+                PONumber: $('.action-container #FilterPanel_WorkOrder').val(),
+                Phone: $('.action-container #FilterPanel_PhoneNumber').val(),
+                City: $('.action-container #ByCity').val(),
+                StateId: $('.action-container #ByState').val(),
+                Id: $('.action-container #ByJobId').val(),
+                ReceiptNumber: $('.action-container #ReceiptNumber').val(),
+                Locked: $('.action-container #LoadLockedJobs').is(':checked'),
+                TechFirstName: $('.action-container #TechFirstName').val(),
+                TechLastName: $('.action-container #TechLastName').val(),
+                TechCompanyName: $('.action-container #TechCompanyName').val(),
+                Address: $('.action-container #FilterPanel_Address').val(),
+                POTrackingNumber: $('.action-container #FilterPanel_POTrackingNumber').val(),
+                ExcludeWallMartJobs: $('#txtExcludeWallMartJobs').val(),
+                Search: true
+            };
+
+            if (searchModel.cbInState == 1 && searchModel.cbOutOfState == 1 && searchModel.cbCitiBank == 1 && searchModel.cbAissJobs == 1 && searchModel.cbProjects == 1 && /*searchModel.ContractorId == 0 */
+                searchModel.FromDate === ""
+                && searchModel.ToDate === "" && searchModel.CustomerTypeId === "5" && searchModel.JobStatusId === "0" && searchModel.ReceiptNumber === "" && searchModel.Id === ""
+                && searchModel.ExpectedFromTime === "" && searchModel.ExpectedToTime === "" && searchModel.PONumber === "" && searchModel.Phone === ""
+                && searchModel.WorkOrder2 === "" && searchModel.CustomerName === "" && searchModel.StoreNumber === "" && searchModel.StoreLocationName === "" && searchModel.City === "" && searchModel.Id === "" && searchModel.StateId === "0"
+                && searchModel.TechFirstName === "" && searchModel.TechLastName === "" && searchModel.TechCompanyName === "" && searchModel.Address === "" && searchModel.POTrackingNumber === "") {
+                searchModel.Search = false;
+        }
+
+        return searchModel;
+    }
+</script>
+}
+
+@await Html.PartialAsync("_FilterPanel")
+
+@await Html.PartialAsync("_MainCallSlipGrid")
+

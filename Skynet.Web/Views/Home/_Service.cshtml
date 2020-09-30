@@ -1,0 +1,501 @@
+﻿@model Skynet.Service.ViewModels.CallSlipModel
+
+<style>
+    /*.ui-widget-content{
+        background-color: #494c50;
+        color:white;
+    }*/
+
+
+
+    .nav-link:hover {
+        color: #007bff;
+    }
+
+
+    @@media screen and (max-width: 1536px) {
+        .col-md-6 {
+            max-width: 50%;
+        }
+    }
+
+    @@media screen and (max-width: 1920px) {
+        .col-md-6 {
+            max-width: 50%;
+        }
+
+        .tablesScroll {
+            width: 88%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 360px;
+        }
+
+        #HistoricalContainer {
+            width: 88%;
+        }
+
+        .nav {
+            font-size: 15px;
+        }
+
+        .nav-link {
+            padding: 5px 19px;
+            border-right: solid 1px;
+            background-color: #dfe0e6;
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 0px;
+        }
+    }
+
+    @@media screen and (max-width: 1366px) {
+        .col-md-6 {
+            max-width: 50%;
+        }
+
+        .ui-widget.ui-widget-content {
+            width: 1155px;
+            left: 211px;
+        }
+
+        .nav {
+            font-size: 13px;
+        }
+
+        .tablesScroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 360px;
+        }
+
+        .nav-link {
+            padding: 5px 10px;
+            border-right: solid 1px;
+            background-color: #dfe0e6;
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 0px;
+        }
+    }
+
+
+    .editable {
+        /*width: 300px;*/
+        height: 100px;
+        max-width: 603px;
+        border: 1px solid #ccc;
+        padding: 5px;
+        overflow-x: auto;
+    }
+
+    .LeftTd{
+        width: 75%;
+    }
+
+    .tableBody {
+        background-color: white;
+    }
+</style>
+
+<div class="col-md-6">
+    <div>
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="pill" onclick="showServicesDiv(@Model.Id);" href="#ServiceDivs">Service</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" onclick="showEstimatesDiv(@Model.Id);" href="#EstimateDivs">Estimates<sup>@Model.estimateCreated</sup></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" onclick="showCommunicationDiv(@Model.Id);" href="#">Communication<sup>@Model.CommunicationCreated</sup></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" onclick="showPaymentsDiv(@Model.Id);" href="#">Payments<sup>@Model.PaymentCreated</sup></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" onclick="showPoDiv(@Model.Id);" href="#">Purchase Orders<sup>@Model.PurchaseOrderCreated</sup></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" href="#">Markup<sup><i class="@Model.InvoiceCreated"></i></sup></a>
+            </li>
+        </ul>
+    </div>
+    @*<div id="divProgressBar" style="display:none;height:40px;padding-top:9px;">
+        </div>*@
+<div class="progress" style="height:40px;padding-top:14px;background-color:#eeeeee;">
+    <div class="progress-bar bg-white text-body accepted" role="progressbar" style="width: 21%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">Accepted</div>
+    <div class="progress-bar bg-white text-body dispatched" role="progressbar" style="width: 22%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">Dispatched</div>
+    <div class="progress-bar bg-white text-body delayed" role="progressbar" style="width: 22%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">Delayed</div>
+    <div class="progress-bar bg-white text-body complete" role="progressbar" style="width: 22%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">Completed</div>
+</div>
+    <br />
+    <table style="font-size:12px; border-bottom:groove;">
+        <tr>
+            <td>Store #</td>
+            <td>
+                <input class="form-control" id="CallSlipId" type="text" value="@Model.Id" hidden />
+                <input class="form-control LeftTd" id="ServiceTab_StoreNumber1" type="text" value="@Model.StoreNumber" />
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Store Name</td>
+            <td colspan="3">
+                <input class="form-control" type="text" value="@Model.StoreLocationName" />
+            </td>
+        </tr>
+        <tr>
+            <td>Customer Type</td>
+            <td>
+                <input type="hidden" id="ServiceTab_StoreNumber12" />
+                <input type="hidden" id="CurrentUserName" name="CurrentUserName" />
+                <input type="hidden" id="CallSlipId" name="CallSlipId" />
+                <input type="hidden" id="CustomerId" />
+                <input type="hidden" id="CustomerTripCharges" />
+                <input type="hidden" id="CustomerHourlyLabour" />
+                <input type="hidden" id="CustomerNoteDetails" value="" />
+                <input type="hidden" id="StoreUrgentNoteDetails" value="" />
+                <input type="hidden" id="IsWarrantyJob" value="0" />
+                <input type="hidden" id="WarrantyStateChanged" value="0" />
+                <input type="hidden" id="StoreId" />
+                @*<input class="form-control" type="text" value="@Model.CustomerType" />*@
+
+                <select id="CustomerType" name="CustomerType" class="form-control LeftTd">
+                    <option value="1">Commercial Billing</option>
+                    <option value="4">Commercial Non Billing</option>
+                    <option value="2">Residential</option>
+                    <option value="3">Auto</option>
+                </select>
+
+            </td>
+            <td class="text-right">JobType</td>
+            <td>
+                @*<input class="form-control" type="text" value="@Model.DispatchBoardType" />*@
+                @Html.DropDownList("JobTypeId", new SelectList(ViewBag.JobType, "Id", "Type"), new { @class = "form-control" })
+            </td>
+        </tr>
+        <tr>
+            <td>Customer</td>
+            <td><input class="form-control LeftTd" type="text" id="CustomerName" value="@Model.CustomerName" /></td>
+            <td class="text-right">Phone</td>
+            <td><input class="form-control phone" id="Phone" name="Phone" type="text" value="@Model.Phone" /></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><input class="form-control LeftTd" id="Email" name="Email" type="text" value="@Model.EmailAddress" /></td>
+            <td class="text-right">Contact</td>
+            <td><input class="form-control" id="ContactPerson" name="ContactPerson" type="text" value="@Model.ContactPerson" /></td>
+        </tr>
+        <tr>
+            <td>Called in by</td>
+            <td><input class="form-control LeftTd" id="CalledInBy" name="CalledInBy" type="text" value="@Model.CalledInBy" /></td>
+            <td class="text-right">NTE</td>
+            <td><input class="form-control" id="NotExceedAmount" name="NotExceedAmount" type="text" value="@Model.NTEAmount" /></td>
+        </tr>
+        <tr>
+            <td>Address</td>
+            <td colspan="3"><input class="form-control" id="Address" type="text" value="@Model.Address" /></td>
+        </tr>
+        <tr>
+            <td>City</td>
+            <td><input class="form-control LeftTd" id="ServiceTab_City" name="ServiceTab_City" type="text" value="@Model.City" /></td>
+            <td class="text-right">PO#</td>
+            <td><input class="form-control" id="ServiceTab_WorkOrder" name="ServiceTab_WorkOrder" type="text" value="@Model.PONumber" /></td>
+        </tr>
+        <tr>
+            <td>State</td>
+            <td>@Html.DropDownList("ServiceTab_State", new SelectList(ViewBag.States, "Id", "Name"), new { @class = "form-control LeftTd" })</td>
+            <td class="text-right">Country</td>
+            <td> @Html.DropDownList("CountryId", new SelectList(ViewBag.Countries, "Id", "Name"), new { @onchange = "GetStatesByCountry(this,'#ServiceTab_State')", @class = "form-control" })</td>
+        </tr>
+        <tr>
+            <td>Zip</td>
+            <td><input class="form-control LeftTd" id="ServiceTab_Zip" name="ServiceTab_Zip" type="text" value="@Model.ZipCode" /></td>
+            <td class="text-right">Fax</td>
+            <td><input class="form-control" id="ServiceTab_Fax" name="ServiceTab_Fax" type="text" value="@Model.Fax" /></td>
+        </tr>
+        <tr>
+            <td>Alt Phone</td>
+            <td><input class="form-control LeftTd phone" id="ServiceTab_AlternatePhone" name="ServiceTab_AlternatePhone" type="text" value="@Model.AlternatePhone" /></td>
+            <td class="text-right">Ad Type</td>
+            <td><input class="form-control" id="AdTypeLbl" type="text" value="@Model.AdType" /></td>
+        </tr>
+        <tr>
+            <td>Work Order</td>
+            <td><input class="form-control LeftTd" id="WorkOrder2" name="WorkOrder2" type="text" value="@Model.WorkOrder2" /></td>
+            <td class="text-right">Equipment</td>
+            <td><input class="form-control" id="equipment_name" name="equipment_name" type="text" value="@Model.EquipmentName" /></td>
+        </tr>
+        <tr>
+            <td>Buzzer#</td>
+            <td><input class="form-control LeftTd" id="ServiceTab_Buzzer" name="ServiceTab_Buzzer" type="text" value="@Model.BuzzerCode" /></td>
+            <td class="text-right">Set Alarm</td>
+            <td><input class="form-control time" name="AlarmTime" id="AlarmTime" type="text" value="@Model.alarmTime" /></td>
+        </tr>
+        <tr>
+            <td>Description</td>
+            <td colspan="3">
+                @*<textarea class="form-control" style="height:100px;">@Model.JobDescription</textarea>*@
+                <div class="form-control editable" style="resize:vertical;" contenteditable="true">@Html.Raw(Model.JobDescription)</div>
+            </td>
+        </tr>
+        <tr>
+            <td>Booked</td>
+            <td>
+                <div style="display:flex">
+                    <input class="form-control" id="bTime" style="width:45%" readonly type="text" value="@Model.CreatedOn" />
+                    <input class="form-control" id="bTime" style="width:30%" readonly type="text" value="@Model.BookedByUserName" />
+                </div></td>
+            <td class="text-right">Dispatched</td>
+            <td><input class="form-control" id="dTime" readonly type="text" value="@Model.TimeDispatched" /></td>
+        </tr>
+        <tr>
+            <td>Time</td>
+            <td>
+                <div style="display:flex;">
+                    <select class="form-control" style="width:32%;" id="DayInterval">
+                        <option value="1">At</option>
+                        <option value="2">By</option>
+                        <option value="3">Between</option>
+                    </select>
+                    <input class="form-control time" style="width:43%;" type="text" name="ExpectedTime" id="ExpectedTime" value="@Model.FromTime" />
+                </div>
+            </td>
+            <td class="text-right">Date</td>
+            <td><input class="form-control" id="ServiceDate" name="ServiceDate" type="text" value="@Model.OnDate" /></td>
+        </tr>
+        <tr>
+            <td>CC Receipt#</td>
+            <td><input class="form-control LeftTd" name="ccReceiptNumber" id="ccReceiptNumber" type="text" value="@Model.ReceiptNumber" /></td>
+            <td class="text-right">Status</td>
+            <td>@Html.DropDownList("JobStatusId", new SelectList(ViewBag.JobStatus, "Id", "Name"), new { @class = "form-control" })</td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                Ask &nbsp;&nbsp; <input id="Ask" name="Ask" style="display:inline; vertical-align:text-top;" type="checkbox" class="form-check" />&nbsp;&nbsp;&nbsp;&nbsp;
+                Emergency &nbsp;&nbsp; <input id="IsEmergency" name="IsEmergency" style="display:inline; vertical-align:text-top;" type="checkbox" class="form-check" />&nbsp;&nbsp;&nbsp;&nbsp;
+                Tax Exempt &nbsp;&nbsp; <input id="TaxExempt" name="TaxExempt" style="display:inline; vertical-align:text-top;" type="checkbox" class="form-check" />
+            </td>
+            <td><button class="btn btn-success " onclick="ShowCustomerJobWrapupNotes();" style="float:right; width:75px; font-size:11px; margin-top: 7px;">Save</button></td>
+        </tr>
+    </table>
+    <br />
+    <div>
+        <button class="btn btn-primary" style="font-size: 12px;">Contractors</button>
+        <button class="btn btn-warning" style="font-size: 12px;">Loc History</button>
+        <button class="btn btn-primary" style="font-size: 12px;">Map</button>
+        <button class="btn btn-primary" style="font-size: 12px;">Duplicate Job</button>
+        <button class="btn btn-warning" style="font-size: 12px;">Complex Job</button>
+    </div>
+    <div style="width: 88%;">
+        <table class="table table-hover" style="font-size:12px; border-bottom:groove; max-width:100%;">
+            <thead style="background-color:#dfe0e6;">
+                <tr>
+                    <th style="width:322px;">Name</th>
+                    <th style="width:150px;">Phone</th>
+                    <th>NTE</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="tableBody" border-bottom:groove;" id="contractorsBody"></tbody>
+        </table>
+    </div>
+    <br />
+    <p class="h6">Store Location History:</p>
+    <div class="tablesScroll">
+        <table class="table table-hover" style="font-size:12px; border-bottom:groove; max-width:100%;">
+            <thead style="background-color:#dfe0e6;">
+                <tr>
+                    <th>Id</th>
+                    <th>Expected Date</th>
+                    <th>Description</th>
+                    <th>Primary Contractor</th>
+                    <th>Amt Paid</th>
+                </tr>
+            </thead>
+            <tbody class="tableBody" id="LocationHistoryBody"></tbody>
+        </table>
+    </div>
+    <br />
+    <p class="h6">Customer Comm Log:</p>
+    <div class="tablesScroll">
+        <table class="table table-hover" style="font-size:12px; border-bottom:groove;">
+            <thead style="background-color:#dfe0e6;">
+                <tr>
+                    <th>
+                        Message
+                    </th>
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        User
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="tableBody" id="CustomerCommLogBody"></tbody>
+        </table>
+    </div>
+</div>
+<div class="col-md-6">
+    <div>
+        <div id="StatusHistoryColors" style="display:none;padding-top:3px;">
+        </div>
+    </div>
+
+    <div id="ServiceDivs_@(Model.Id)">
+        <div id="HistoricalContainer">
+            <table class="table table-advance" style="word-break: break-word;">
+                <tbody>
+                    <tr>
+                        <td class="panelField" style="background-color:transparent; border:none;vertical-align: top;">
+                            <strong>
+                                <label style="cursor: pointer; font-size: 15px; color:#212529;" class="htmlSection" id="CurrentStatus" onclick="JobStatusPopup();">@Model.CurrentStatus</label>
+                                <label id="ChangedBy" style="font-size: 12px; color:#212529;">@Model.ChangedBy</label>
+                            </strong>
+                        </td>
+                        <td class="panelField" style="word-wrap: break-word;background-color:transparent; border:none;">
+                            <div style="max-height: 58px;overflow: auto; padding-right: 5px;">
+                                <strong>
+                                    <label style="font-size: 12px; color: #212529;" class="htmlSection" id="ServiceTab_HistoricalData">@Model.HistoricalData</label>
+                                </strong>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="JobNotesContainer" class="tablesScroll">
+        </div>
+        <br />
+        <div class="tablesScroll" id="SPdocumentlist">
+        </div>
+        <br />
+
+        <p class="h6">Contractor Active Jobs:</p>
+        <div class="tablesScroll">
+            <table class="table table-hover" style="font-size:12px; border-bottom:groove; max-width:100%;">
+                <thead style="background-color:#dfe0e6;">
+                    <tr>
+                        <th>
+                            Id
+                        </th>
+                        <th>
+                            Store
+                        </th>
+                        <th style="width:107px;">
+                            Expected Date
+                        </th>
+                        <th>
+                            City
+                        </th>
+                        <th>
+                            Primary Contractor
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="tableBody" id="ContractorActiveJobBody"></tbody>
+            </table>
+        </div>
+        <br />
+        <p class="h6">Technician Daily Activity:</p>
+        <div class="tablesScroll">
+            <table class="table table-hover" style="font-size:12px; border-bottom:groove; max-width:100%;">
+                <thead style="background-color:#dfe0e6;">
+                    <tr>
+                        <th>
+                            Id
+                        </th>
+                        <th>
+                            Store
+                        </th>
+                        <th>
+                            Expected Date
+                        </th>
+                        <th>
+                            City
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                        <th class="fa fa-trash">
+                            Primary Contractor
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="tableBody" id="TechnicianDailyActivityBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="EstimateDivs_@(Model.Id)" style="display:none;">
+        @await Html.PartialAsync("_MultiEstimates")
+    </div>
+    <div id="CommunicationDivs_@(Model.Id)" style="display:none;">
+        @await Html.PartialAsync("_Communications")
+    </div>
+    <div id="PaymentsDivs_@(Model.Id)" style="display:none;">
+        @await Html.PartialAsync("_Payments")
+    </div>
+</div>
+<div id="NotesPopup" style="display:none;">
+    <table>
+        <tr>
+            <td>Enter Notes: </td>
+        </tr>
+        <tr>
+            <td>
+                <textarea style="width: 99%; height: 61px;" id="NotesInPopup" name="NotesInPopup"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Related To Payable: <input type="checkbox" @Model.IsEmergency?checked="true":checked="false" id="RelatedToInvoice" name="RelatedToInvoice" /> &nbsp; &nbsp; &nbsp; &nbsp;
+                Related To Service Channel: <input type="checkbox" id="RelatedToServiceChannel" name="RelatedToServiceChannel" />&nbsp; &nbsp; &nbsp; &nbsp;
+                Related To iPhone: <input type="checkbox" id="RelatedToIphone" name="RelatedToIphone" />
+            </td>
+        </tr>
+    </table>
+    <div class="form-actions" style="float:right;">
+        <button id="cancelNotes" class="cancel btn btn-danger">Cancel</button>
+        <button id="ConfirmNotes" onclick="SaveNotes();" class="success btn btn-primary">Save</button>
+    </div>
+</div>
+@{
+    var desc = System.Text.RegularExpressions.Regex.Replace(@Model.JobDescription.Replace("\n", "<br>"), "<.*?>", String.Empty);
+    desc = desc.Replace("&nbsp;", " "); desc = desc.Replace("&amp;", "&").Replace("&gt;", ">").Replace("&lt;", "<");
+}
+<script>
+    $(document).ready(function () {
+        @*$('#'+@Model.Id).parent().find('.ui-widget-header').css("background-color", "@Model.BackgroundColor")
+        $('#'+@Model.Id).parent().find('.ui-widget-header').css("color", "@Model.FontColor");*@
+        //$('.ui-dialog').css("top", "0.508px");
+        //$('.ui-dialog').css("left", "260px");
+        $(".phone").mask("(999) 999-9999?-99999");
+        $('.time').timepicker({
+        timeOnlyTitle: 'Timer',
+        showButtonPanel: false,
+        defaultValue: '00:00'
+    });
+    // Basic Job Details
+    $('#' + @Model.Id).parent().find('#comm_CustomerName').html('@Model.CustomerName');
+    $('#' + @Model.Id).parent().find('#comm_Address').html('@Model.Address');
+    $('#' + @Model.Id).parent().find('#comm_City').html('@Model.City');
+    $('#' + @Model.Id).parent().find('#comm_State').html('@Model.State');
+    $('#' + @Model.Id).parent().find('#comm_Zip').html('@Model.ZipCode');
+    $('#' + @Model.Id).parent().find('#comm_JobDescription').html('@desc');
+    $('#' + @Model.Id).parent().find('#comm_IVR').html('@Model.IVRNumber');
+    $('#' + @Model.Id).parent().find('#comm_PIN').html('@Model.IVRPin');
+        $('#' + @Model.Id).parent().find('#comm_WorkOrderNumber').html('@Model.PONumber');
+        $('#ServiceTab_State').val(@Model.StateId);
+        $('#CustomerType').val(@Model.CustomerTypeId);
+        $('#JobTypeId').val(@Model.JobTypeId);
+        $('#CountryId').val(@Model.CountryId);
+        $('#JobStatusId').val(@Model.JobStatusId);
+        $('#DayInterval').val(@Model.DateIntervalType);
+    });
+</script>

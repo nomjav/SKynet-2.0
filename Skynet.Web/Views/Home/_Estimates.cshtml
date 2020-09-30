@@ -1,0 +1,556 @@
+﻿
+@*@using AcademyLockSmith.Web.Controllers
+    @{
+        var mystyle = ((BaseALSController)ViewContext.Controller).GetUIAutoCompleteCss;
+    }
+    @MvcHtmlString.Create(mystyle)*@
+<st`yle>
+</st`yle>
+<button id="reviewEstimates" class="btn btn-success" style="background:#fb9800; font-size:11px; float:right;" onclick="reviewEstimates();">Submit For Review</button>
+<a onclick="PurchaseOrderByEstimate(); return false;" target="_blank" style="color: #fff; font-size:11px; float: right; margin-right:5px" id="CreatePOButton" class="btn btn-primary">Create PO By Estimate</a>
+<button type="button" id="ShowPartPanel" class="btn btn-success" style="font-size:11px;">Add line item</button>
+<button id="emailEstimate" style="font-size:11px;" class="btn btn-success">Email</button>
+
+<a onclick="RedirectToEstimate();" target="_blank" style="color: #fff; font-size:11px;"  id="printEstimate" class="btn btn-primary">Print</a><br /><br />
+
+
+<div class="emailPanel" style="display: none;">
+    <table>
+        <tr>
+            <td><span style="color: #fff;">Enter Email</span></td>
+            <td>
+                <input type="text" name="EstimateEmail" id="EstimateEmail" style="width: 245px; font-size:12px;" />
+            </td>
+            <td>
+                <button type="button" onclick="SendEstimate()" id="btnSendEstimateEmail" class="btn btn-success" style="font-size:11px;">Send</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<span style="font-size:11px; color:#d33838;" id="stateExempt"></span>
+<div id="PartsPanel" style="display: none; padding: 10px 0;">
+    <hr />
+    <form id="PartsForm">
+        <table style="color: white;">
+            <tr>
+                <td colspan="2">
+                    <input type="hidden" id="PartIdOfEstimate" name="PartIdOfEstimate" />
+                    @*<input type="hidden" id="purchasePrice" name="purchasePrice" />*@
+                    <input type="hidden" id="TotalPartQuantity" name="TotalPartQuantity" />
+                    <label id="lblPartFound" style="display: none;"></label>
+                    <input type="hidden" id="APTAPrice" name="APTAPrice" />
+                </td>
+            </tr>
+            <tr>
+                <td>Type</td>
+                <td>
+                    <select id="PartType">
+                        <option value="1">Parts</option>
+                        <option value="2">Labor</option>
+                        <option value="4">Trip Charge</option>
+                        <option value="3">Other</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Part No:</td>
+                <td>
+                    <input type="text" id="Name" name="Name" />
+
+                    @*@(Html.Telerik().AutoComplete()
+                          .Name("Name")
+                          .ClientEvents(events => events.OnChange("LoadParts").OnDataBinding("StopPosting"))
+                          .DataBinding(binding => binding.Ajax().Select("LoadParts", "Home"))
+                          .HighlightFirstMatch(true)
+                          .AutoFill(true))*@
+                </td>
+            </tr>
+            <tr style="display:none;">
+                <td>Description</td>
+                <td>
+                    <textarea style="width: 98%; height: 60px;" id="PartDescription" name="PartDescription" class="required"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Margin %:
+                </td>
+                <td>
+                    <input type="text" id="partsMarkup" name="partsMarkup" class="onlyNumberAllowed" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Discount %:
+                </td>
+                <td>
+                    <input type="text" id="partsDiscount" name="partsDiscount" class="onlyNumberAllowed" />
+                </td>
+
+                <td class="purchasePrice">Purchase Price:</td>
+                <td>
+                    <input type="text" id="purchasePrice" name="purchasePrice" class="purchasePrice onlyNumberAllowed" disabled="disabled" />
+                </td>
+            </tr>
+            <tr style="display:none;">
+                <td>Labor Cost:</td>
+                <td>
+                    <input type="text" id="laborOrPartCost" name="laborOrPartCost" class="onlyNumberAllowed" />
+
+                </td>
+            </tr>
+            <tr style="display:none;">
+                <td>Part Cost:</td>
+                <td>
+                    <input type="text" id="NewPartCost" name="NewPartCost" class="onlyNumberAllowed" />
+
+                </td>
+            </tr>
+            <tr>
+                <td>Price:</td>
+                <td>
+                    @*<input type="text" id="PartPrice" maxlength="8" name="PartPrice" class="calculator number required" autocomplete="Off" />&nbsp;&nbsp;<label id="lblPartPrice" style="color: red"></label>*@
+                    <input type="text" id="PartPrice" maxlength="8" name="PartPrice" class="calculator number required" autocomplete="Off" />
+                </td>
+                <td class="sellingPrice">Selling Price:</td>
+                <td>
+                    <input type="text" id="sellingPrice" name="sellingPrice" class="sellingPrice onlyNumberAllowed" disabled="disabled" />
+                </td>
+            </tr>
+            @*<tr style="display:none;">
+                    <td>Profit:</td>
+                    <td>
+                        <input type="text" id="PartPofit" name="PartPofit" class="onlyNumberAllowed" disabled="disabled" />
+                    </td>
+                </tr>*@
+            <tr>
+                <td>Quantity</td>
+                <td>
+                    <input type="text" id="PartQuantity" maxlength="8" name="PartQuantity" class="number required" />
+                </td>
+
+                <td class="profitOnParts">Profit:</td>
+                <td>
+                    <input type="text" id="PartPofit" name="PartPofit" class="profitOnParts onlyNumberAllowed" disabled="disabled" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="buttons-align-right">
+                        <button type="button" class="btn btn-success" style="font-size:11px;" id="AddPart">Save</button>
+                        <button type="button" id="HidePartPanel" style="font-size:11px;" class="btn">Cancel</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <hr />
+</div>
+
+<div style="max-height: 500px; overflow: auto; margin-top: 15px;">
+    <table id="PartsGrid" class="table table-hover" style="font-size:12px; border-bottom:groove; max-width:100%;">
+        <thead style="background-color:#dfe0e6;">
+            <tr>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Price</th>
+                <th>Created By</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody style="background-color:white;" id="tblBodyPartsGrid"></tbody>
+        <tfoot id="tblBodyPartsTotals" style="background-color:white;"></tfoot>
+    </table>
+</div>
+
+<br />
+<br />
+<div style="display:none;">
+    <table id="profitAndLostGrid" class="table table-hover" style="font-size:12px; border-bottom:groove; max-width:100%;"></table>
+</div>
+<div style="display:none;" id="partsOutOfStock" class="warning">
+
+</div>
+<style>
+    #Name {
+        width: 98%;
+    }
+    /*.ui-autocomplete {
+        z-index: 99999999 !important;
+    }*/
+</style>
+
+
+<script>
+    $(document).ready(function () {
+
+        $('#laborOrPartCost').parents('tr').fadeOut();
+
+    });
+
+    // load Part details on name selection
+    function StopPosting(e) {
+        if ($('#PartType').val() != "1") {
+            return false;
+        }
+        return true;
+    }
+
+
+
+    $('#ShowPartPanel').click(function () {
+        $('#PartsPanel').slideToggle(500);
+        $('#PartDescription').parents('tr').hide();
+        $('.profitOnParts').hide();
+        $('.purchasePrice').hide();
+        $('.sellingPrice').hide();
+        ClearInvoiceForm();
+    });
+    $('#HidePartPanel').click(function () {
+        $('#PartsPanel').slideToggle(500); ClearInvoiceForm();
+    });
+
+    $('#partsMarkup').focusout(function () {
+        ProfitCalculations();
+    });
+    $('#partsDiscount').focusout(function () {
+        ProfitCalculations();
+    });
+    $('#laborOrPartCost').focusout(function () {
+        ProfitCalculations();
+    });
+    $('#PartPrice').focusout(function () {
+        ProfitCalculations();
+    });
+    $('#PartQuantity').focusout(function () {
+        ProfitCalculations();
+    });
+
+
+    function ProfitCalculations() {
+
+        // profitCalculationOnEstimate();
+        var jobPartId = $('#PartIdOfEstimate').val();
+        if (jobPartId != null && jobPartId != "") {
+            var type = $('#PartType').val();
+            if (type == '1') {
+                partProfitCalculations(jobPartId);
+            }
+            else
+                if (type == '2') {
+                    laborProfitCalculations(jobPartId);
+                }
+
+        }
+        else {
+            var type = $('#PartType').val();
+
+            if (type == '1') {
+                AddPartProfitCalculations();
+            }
+            else
+                if (type == '2') {
+                    AddLaborProfitCalculations();
+                }
+
+
+
+
+            //----------------------
+            //var itemName = $('#Name').val();
+            //var AptaPrice = parseFloat($('#APTAPrice').val());
+            //var UnitPrice = $("#profitLoss" + jobPartId).children('td:nth-child(2)').text();
+            //var purchasePrice = parseFloat($('#purchasePrice').val());
+            //if (itemName != null && itemName != "" && purchasePrice != null && purchasePrice != "" && !isNaN(purchasePrice)) {
+            //    var markup = parseFloat($('#partsMarkup').val());
+            //    var sellingPrice = AptaPrice / (1 - (parseFloat(markup) / 100));
+            //    var discount = parseFloat($('#partsDiscount').val());
+            //    var markupPrice = (markup / 100) * purchasePrice;
+            //    var totalMarkup = markupPrice + parseFloat(UnitPrice);
+            //    var discountPrice = (discount / 100) * totalMarkup;
+            //    //var displayPrice = displayPrice - discountPrice;
+            //    sellingPrice = sellingPrice - discountPrice;
+            //    if (sellingPrice != null && sellingPrice != "" && !isNaN(sellingPrice)) {
+            //        $('#lblPartPrice').html("*(" + sellingPrice.toFixed(2) + ")");
+            //    }
+            //}
+        }
+    }
+
+    //--------------Profit Calculations for Part on add---------------------------
+    function AddPartProfitCalculations() {
+        var found = $('#lblPartFound').text();
+
+        if (found == "Yes") {
+            var aptaPrice = parseFloat($('#APTAPrice').val());
+            var markup = $('#partsMarkup').val();
+            var discount = $('#partsDiscount').val();
+            var quantity = $("#PartQuantity").val();
+            var purchasePrice = $('#purchasePrice').val();
+
+            var sellingPrice = aptaPrice / (1 - (parseFloat(markup) / 100));
+            var markupPrice = (markup / 100) * purchasePrice;
+            var totalMarkup = markupPrice + parseFloat(purchasePrice);
+            var discountPrice = (discount / 100) * totalMarkup;
+
+            sellingPrice = sellingPrice - discountPrice;
+            if (sellingPrice != null && !isNaN(sellingPrice)) {
+                // $('#lblPartPrice').html("*(" + sellingPrice.toFixed(2) + ")");
+                $('#sellingPrice').val(sellingPrice.toFixed(2));
+            }
+
+            var profit = sellingPrice - aptaPrice;
+            var totalProfit = profit * parseFloat(quantity);
+            if (totalProfit != null && !isNaN(totalProfit)) {
+                $('#PartPofit').val(totalProfit.toFixed(2));
+                // $('#PartPofit').parents('tr').show();
+                $('.profitOnParts').show();
+            }
+        }
+        else {
+
+            var markup = $('#partsMarkup').val();
+            var discount = $('#partsDiscount').val();
+            var quantity = $("#PartQuantity").val();
+            var newPartCost = parseFloat($('#NewPartCost').val());
+
+            var sellingPrice = newPartCost / (1 - (parseFloat(markup) / 100));
+            var markupPrice = (markup / 100) * newPartCost;
+            var totalMarkup = markupPrice + parseFloat(newPartCost);
+            var discountPrice = (discount / 100) * totalMarkup;
+
+            sellingPrice = sellingPrice - discountPrice;
+            if (sellingPrice != null && !isNaN(sellingPrice)) {
+                // $('#lblPartPrice').html("*(" + sellingPrice.toFixed(2) + ")");
+                $('#sellingPrice').val(sellingPrice.toFixed(2));
+            }
+
+            var profit = sellingPrice - newPartCost;
+            var totalProfit = profit * parseFloat(quantity);
+            if (totalProfit != null && !isNaN(totalProfit)) {
+                $('#PartPofit').val(totalProfit.toFixed(2));
+                // $('#PartPofit').parents('tr').show();
+                $('.profitOnParts').show();
+            }
+
+        }
+
+
+    }
+    //--------------Profit Calculations for Labor on add---------------------------
+    function AddLaborProfitCalculations() {
+
+        var laborCost = parseFloat($("#laborOrPartCost").val());
+        var unitPrice = parseFloat($('#PartPrice').val());
+        var quantity = parseFloat($("#PartQuantity").val());
+
+        //var laborTotal = quantity * laborCost;
+        var total = quantity * unitPrice;
+        var profit = parseFloat(total) - laborCost;
+        if (profit != null && !isNaN(profit)) {
+            $('#PartPofit').val(profit.toFixed(2));
+            // $('#PartPofit').parents('tr').show();
+            $('.profitOnParts').show();
+        }
+
+
+    }
+    //--------------Profit Calculations for Labor on edit---------------------------
+    function laborProfitCalculations(jobPartId) {
+
+        var oldProfit = $("#profitLoss" + jobPartId).children('td:nth-child(7)').text();
+        var quantity = $("#PartQuantity").val();
+        var oldPartTotal = parseFloat($("#profitLoss" + jobPartId).children('td:nth-child(6)').text());
+        var laborCost = parseFloat($("#laborOrPartCost").val());
+        var unitPrice = parseFloat($('#PartPrice').val());
+        if (quantity != null && quantity != "" && !isNaN(quantity)) {
+            $("#profitLoss" + jobPartId).children('td:nth-child(3)').text(quantity);
+        }
+        if (laborCost != null && !isNaN(laborCost)) {
+            $("#profitLoss" + jobPartId).children('td:nth-child(2)').text(laborCost.toFixed(2));
+            var oldTotalPrice = parseFloat($('#profitLossTotalProfit').children('td:nth-child(6)').text());
+            var oldTotal = parseFloat($("#profitLoss" + jobPartId).children('td:nth-child(6)').text());
+            var newTotal = oldTotalPrice - oldTotal;
+            //var total = parseFloat(quantity) * laborCost;
+            newTotal += laborCost;
+            if (newTotal != null && !isNaN(newTotal)) {
+                $('#profitLossTotalProfit').children('td:nth-child(6)').text(newTotal.toFixed(2));
+            }
+            $("#profitLoss" + jobPartId).children('td:nth-child(6)').text(laborCost.toFixed(2));
+
+        }
+        var oldTotalProfit = parseFloat($('#profitLossTotalProfit').children('td:nth-child(7)').text());
+        var totalPrice = parseFloat(quantity) * parseFloat(unitPrice);
+        //var totalLabor = parseFloat(quantity) * laborCost;
+        var newProfit = totalPrice - laborCost;
+        if (newProfit != null && !isNaN(newProfit)) {
+            $("#profitLoss" + jobPartId).children('td:nth-child(7)').text(newProfit.toFixed(2));
+            $('#PartPofit').val(newProfit.toFixed(2));
+        }
+
+        var newTotalProfit = oldTotalProfit - parseFloat(oldProfit);
+        newTotalProfit += parseFloat(newProfit);
+        if (newTotalProfit != null && !isNaN(newTotalProfit)) {
+            $('#profitLossTotalProfit').children('td:nth-child(7)').text(newTotalProfit.toFixed(2));
+        }
+
+
+    }
+
+    //--------------Profit Calculations for Part on edit---------------------------
+    function partProfitCalculations(jobPartId) {
+        var found = $('#lblPartFound').text();
+
+        // if part present in database
+        if (found == "Yes") {
+            var oldProfit = $("#profitLoss" + jobPartId).children('td:nth-child(7)').text();
+            var oldMarkup = $("#profitLoss" + jobPartId).children('td:nth-child(4)').text();
+            var oldPartTotal = parseFloat($("#profitLoss" + jobPartId).children('td:nth-child(6)').text());
+            var aptaPrice = parseFloat($('#APTAPrice').val());
+            var markup = $('#partsMarkup').val();
+            var sellingPrice = aptaPrice / (1 - (parseFloat(markup) / 100));
+
+            $("#profitLoss" + jobPartId).children('td:nth-child(4)').text(markup + "%");
+            var discount = $('#partsDiscount').val();
+            $("#profitLoss" + jobPartId).children('td:nth-child(5)').text(discount + "%");
+            var unitPrice = $("#profitLoss" + jobPartId).children('td:nth-child(2)').text();
+            var quantity = $("#PartQuantity").val();
+            if (quantity != null && !isNaN(quantity)) {
+                $("#profitLoss" + jobPartId).children('td:nth-child(3)').text(quantity);
+                var oldTotalPrice = parseFloat($('#profitLossTotalProfit').children('td:nth-child(6)').text());
+                var oldTotal = parseFloat($("#profitLoss" + jobPartId).children('td:nth-child(6)').text());
+                var newTotal = oldTotalPrice - oldTotal;
+
+                var total = parseFloat(quantity) * parseFloat(unitPrice);
+                newTotal += total;
+                if (newTotal != null && !isNaN(newTotal)) {
+                    $('#profitLossTotalProfit').children('td:nth-child(6)').text(newTotal.toFixed(2));
+                }
+                $("#profitLoss" + jobPartId).children('td:nth-child(6)').text(total.toFixed(2));
+            }
+            var oldTotalProfit = parseFloat($('#profitLossTotalProfit').children('td:nth-child(7)').text());
+            var totalPrice = parseFloat(quantity) * parseFloat(unitPrice);
+            var markupAmount = (parseFloat(markup) / 100) * parseFloat(unitPrice);
+            var totalMarkup = markupAmount + parseFloat(unitPrice);
+            var discountAmount = (parseFloat(discount) / 100) * totalMarkup;
+            sellingPrice = sellingPrice - discountAmount;
+
+            if (sellingPrice != null && !isNaN(sellingPrice)) {
+                // $('#lblPartPrice').html("*(" + sellingPrice.toFixed(2) + ")");
+                $('#sellingPrice').val(sellingPrice.toFixed(2));
+            }
+            var newProfit = (sellingPrice - aptaPrice) * parseFloat(quantity);
+            if (newProfit != null && !isNaN(newProfit)) {
+                $("#profitLoss" + jobPartId).children('td:nth-child(7)').text(newProfit.toFixed(2));
+            }
+            $('#PartPofit').val(newProfit.toFixed(2));
+
+            var newTotalProfit = oldTotalProfit - parseFloat(oldProfit);
+            newTotalProfit += parseFloat(newProfit);
+            $('#profitLossTotalProfit').children('td:nth-child(7)').text(newTotalProfit.toFixed(2));
+        }
+            // if part not present in database
+        else {
+            var oldProfit = $("#profitLoss" + jobPartId).children('td:nth-child(7)').text();
+            var oldMarkup = $("#profitLoss" + jobPartId).children('td:nth-child(4)').text();
+            var oldPartTotal = parseFloat($("#profitLoss" + jobPartId).children('td:nth-child(6)').text());
+            // var aptaPrice = parseFloat($('#APTAPrice').val());
+            var newPartCoct = parseFloat($('#NewPartCost').val());
+            var markup = $('#partsMarkup').val();
+            var sellingPrice = newPartCoct / (1 - (parseFloat(markup) / 100));
+
+            $("#profitLoss" + jobPartId).children('td:nth-child(4)').text(markup + "%");
+            var discount = $('#partsDiscount').val();
+            $("#profitLoss" + jobPartId).children('td:nth-child(5)').text(discount + "%");
+            var unitPrice = $("#profitLoss" + jobPartId).children('td:nth-child(2)').text();
+            var quantity = $("#PartQuantity").val();
+            if (quantity != null && !isNaN(quantity)) {
+                $("#profitLoss" + jobPartId).children('td:nth-child(3)').text(quantity);
+                var oldTotalPrice = parseFloat($('#profitLossTotalProfit').children('td:nth-child(6)').text());
+                var oldTotal = parseFloat($("#profitLoss" + jobPartId).children('td:nth-child(6)').text());
+                var newTotal = oldTotalPrice - oldTotal;
+
+                var total = parseFloat(quantity) * parseFloat(unitPrice);
+                newTotal += total;
+                if (newTotal != null && !isNaN(newTotal)) {
+                    $('#profitLossTotalProfit').children('td:nth-child(6)').text(newTotal.toFixed(2));
+                }
+                $("#profitLoss" + jobPartId).children('td:nth-child(6)').text(total.toFixed(2));
+            }
+            var oldTotalProfit = parseFloat($('#profitLossTotalProfit').children('td:nth-child(7)').text());
+            var totalPrice = parseFloat(quantity) * parseFloat(unitPrice);
+            var markupAmount = (parseFloat(markup) / 100) * parseFloat(unitPrice);
+            var totalMarkup = markupAmount + parseFloat(unitPrice);
+            var discountAmount = (parseFloat(discount) / 100) * totalMarkup;
+            sellingPrice = sellingPrice - discountAmount;
+
+            if (sellingPrice != null && !isNaN(sellingPrice)) {
+                // $('#lblPartPrice').html("*(" + sellingPrice.toFixed(2) + ")");
+                $('#sellingPrice').val(sellingPrice.toFixed(2));
+            }
+            var newProfit = (sellingPrice - newPartCoct) * parseFloat(quantity);
+            if (newProfit != null && !isNaN(newProfit)) {
+                $("#profitLoss" + jobPartId).children('td:nth-child(7)').text(newProfit.toFixed(2));
+            }
+            $('#PartPofit').val(newProfit.toFixed(2));
+
+            var newTotalProfit = oldTotalProfit - parseFloat(oldProfit);
+            newTotalProfit += parseFloat(newProfit);
+            $('#profitLossTotalProfit').children('td:nth-child(7)').text(newTotalProfit.toFixed(2));
+        }
+
+    }
+
+
+    function profitCalculationOnEstimate() {
+
+        var aptaPrice = parseFloat($('#APTAPrice').val());
+        var purchasePrice = parseFloat($('#purchasePrice').val());
+        var marginPercentage = parseFloat($('#partsMarkup').val());
+        var discount = parseFloat($('#partsDiscount').val());
+        if (aptaPrice != null && !isNaN(aptaPrice) && marginPercentage != null && marginPercentage != "" && !isNaN(marginPercentage)) {
+            var sellingPrice = aptaPrice / (1 - (marginPercentage / 100));
+            var marginPrice = (marginPercentage / 100) * purchasePrice;
+            marginPrice += purchasePrice;
+            var discountPrice = (discount / 100) * marginPrice;
+            sellingPrice = sellingPrice - discountPrice;
+
+            //$('#lblPartPrice').html("*(" + sellingPrice.toFixed(2) + ")");
+            $('#PartPrice').val(sellingPrice.toFixed(2));
+            var profit = sellingPrice - aptaPrice;
+            if (profit != null && !isNaN(profit) && profit != "") {
+                $('#PartPofit').val(profit.toFixed(2));
+            }
+        }
+
+    }
+
+
+    function ClearInvoiceForm() {
+        $('#PartType').val("1");
+        $('#Name').val("");
+        $('#PartDescription').val("");
+        $('#PartPrice').val("");
+        $('#PartQuantity').val("");
+        $('#PartIdOfEstimate').val("");
+        $('#partsMarkup').val('');
+        $('#partsDiscount').val('');
+
+
+    }
+    $('#emailEstimate').click(function () {
+        {
+            $('.emailPanel').slideToggle(500);
+        }
+    });
+    $('#btnSendEmail').click(function () {
+        {
+            Notify('Invoice forwarded succesfully.', 'success'); $('.emailPanel').slideToggle(500);
+        }
+    });
+
+
+</script>

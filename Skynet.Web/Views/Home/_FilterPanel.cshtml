@@ -1,0 +1,275 @@
+﻿<style>
+    .rightPadding {
+        /*text-align: right;*/
+        padding-right: 10px;
+    }
+
+    .legendContainer select {
+        width: 100%;
+    }
+
+    .legendContainer input {
+        /*width: 92%;*/
+        width: 100%;
+    }
+
+    .dBoard {
+        width: auto;
+        display: inline-block;
+        border-spacing: 0;
+    }
+
+        .dBoard .cbCenter {
+            margin-left: 30%;
+            text-align: center;
+        }
+
+        .dBoard td:nth-child(odd) {
+            text-align: right !important;
+            padding-right: 5px;
+        }
+
+    /*.dBoard tr:nth-last-child(2) td:nth-child(odd) {
+            text-align: left !important;
+        }*/
+
+    /*.dBoard .chosen-container {
+            width: 176px !important;
+        }*/
+
+    .msgDiv {
+        margin-top: 2%;
+        margin-right: 2%;
+    }
+
+    .myClass {
+        cursor: pointer;
+        border: 1px solid #c3c3c3;
+        padding: 5px;
+        min-width: 25px;
+        border-radius: 5px;
+    }
+
+    .h3 {
+        margin-bottom: 7px;
+    }
+
+    #filters{
+        width: 110%;
+    }
+    #filterBtn{
+         margin-left: 696px;
+    }
+
+    @@media screen and (min-width: 1903px) {
+        #filters{
+            width: 134%;
+        }
+        #filterBtn{
+            margin-left: 924px;
+        }
+    }
+
+    
+    label {
+        font-size: 12px;
+        margin-bottom: -0.5rem;
+
+    }
+    .labeleTD{
+        text-align:center;
+    }
+</style>
+<input id="txtSearchType" type="hidden" value="" />
+
+<div class="action-container clearfix" id="mainFilterPanelDiv">
+
+    <div id="topBoxes" style="text-align:left!important; float:left; width: 100%; padding:5px;" class="metro-nav clearfix">
+    </div>
+    <div style="width: 100%">
+        <div style="width: 950px; float:left">
+            <div id="customized" class="metro-nav clearfix" style="text-align:left!important; width: 55%; padding:5px; float:left!important">
+                <div id="divCSR" style="width:auto; text-align:center; float:left; margin-right: 25px">
+                    <div id="divCSRLabel"><h3 class="h6">CSR</h3></div>
+                    <div id="divCSRJobs"></div>
+                </div>
+                <div id="divDispatcher" style="width:auto; text-align:center; float:left; margin-right: 25px">
+                    <div id="divDispatcherLabel"><h3 class="h6">Dispatcher</h3></div>
+                    <div id="divDispatcherJobs"></div>
+                </div>
+                <div id="divDispatchMgr" style="width:auto; text-align:center; float:left; margin-right: 25px">
+                    <div id="divDispatchMgrLabel"><h3 class="h6">Dispatch Manager</h3></div>
+                    <div id="divDispatchMgrJobs"></div>
+                </div>
+            </div>
+          
+            <div class="legendContainer" style="border: none; width: 100%; float:left">
+
+                <table id="filters" style="table-layout:fixed;">
+                    <tr>
+                        <td class="labeleTD"><label class="label"><b>Dispatch Board:</b></label></td>
+                        <td class="labeleTD"> <div> <label> Regional</label> <input type="checkbox" class="chkbxJobTypeFP" id="cbInState" name="cbInState" checked /> </div> </td>
+                        <td class="labeleTD"> <div> <label> Corporate</label>  <input type="checkbox" class="chkbxJobTypeFP" id="cbOutOfState" name="cbOutOfState" checked /> </div> </td>
+                        <td class="labeleTD"> <div> <label> CitiBank</label> <input type="checkbox" class="chkbxJobTypeFP" id="cbCitiBank" name="cbCitiBank" checked /> </div> </td>
+                        <td class="labeleTD"> <div> <label> Walmart </label> <input type="checkbox" class="chkbxJobTypeFP" id="cbAissJobs" name="cbAissJobs" checked /> </div> </td>
+                        <td class="labeleTD"> <div> <label> Projects </label> <input type="checkbox" class="chkbxJobTypeFP" id="cbProjects" name="cbProjects" /> </div> </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+
+                        <td class="labeleTD" style="font-size:15px;"><label class="label"><b>Job Id</b> </label></td>
+                        <td>
+                            <input type="text" id="ByJobId" class="number form-control" name="ByJobId" tabindex="1" />
+                        </td>
+
+                        <td class="labeleTD"><label class="label">Customer Type</label></td>
+                        <td>
+                            <select id="CustomerTypeId" class="form-control" tabindex="5">
+                                <option value="5" selected="selected">All</option>
+                                <option value="1">Commercial Billing</option>
+                                <option value="4">Commercial Non Billing</option>
+                                <option value="2">Residential</option>
+                                <option value="3">Auto</option>
+                            </select>
+                        </td>
+                        <td class="labeleTD"><label class="label">Store #</label></td>
+                        <td>
+                            <input type="text" id="ByStoreNumber" class="form-control" name="ByStoreNumber" tabindex="10" />
+                        </td>
+
+                        <td class="labeleTD"><label class="label">Status</label></td>
+                        <td>
+                            @Html.DropDownList("JobStatusId", new SelectList(ViewBag.JobStatus, "Id", "Name"), new { @class = "form-control", tabindex = "4" })
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td class="labeleTD"><label class="label">Booked From</label></td>
+                        <td>
+                            <input type="text" id="BookedFromTime" class="form-control hasDatePicker" name="BookedFromTime" tabindex="2" />
+                        </td>
+
+                        <td class="labeleTD"><label class="label">Customer Name</label></td>
+                        <td>
+                            <input type="text" id="ByCustomerName" class="form-control" name="ByCustomerName" tabindex="6" />
+                        </td>
+                        <td class="labeleTD"><label class="label">Store Name</label></td>
+                        <td>
+                            <input type="text" id="ByStoreName" class="form-control" name="ByStoreName" tabindex="10" />
+                        </td>
+
+                        <td class="labeleTD"><label class="label">Phone</label></td>
+                        <td>
+                            <input type="text" id="FilterPanel_PhoneNumber" class="phone form-control" name="FilterPanel_PhoneNumber" tabindex="14" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="labeleTD"><label class="label">Booked To</label></td>
+                        <td>
+                            <input type="text" id="BookedToTime" class="form-control hasDatePicker" name="BookedToTime" tabindex="3" />
+                        </td>
+                        <td class="labeleTD"><label class="label">Tech Company Name</label></td>
+                        <td>
+                            <input type="text" id="TechCompanyName" class="form-control" name="TechCompanyName" tabindex="7" />
+                        </td>
+                        @*<td>Contractor Company</td>
+                            <td>
+                                @Html.DropDownList("ContractorId", new SelectList(ViewBag.Contractors, "Value", "Text"), new { @class = "chosen-select" })
+                            </td>*@
+                        <td class="labeleTD"><label class="label">Address</label></td>
+                        <td>
+                            <input style="" type="text" id="FilterPanel_Address" class="form-control" name="FilterPanel_Address" tabindex="11" />
+                        </td>
+
+                        <td class="labeleTD"><label class="label">PO #</label></td>
+                        <td>
+                            <input type="text" id="FilterPanel_WorkOrder" class="form-control" name="FilterPanel_WorkOrder" tabindex="17" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        
+                        <td class="labeleTD"><label class="label">Expected From</label></td>
+                        <td>
+                            <input type="text" id="ExpectedFromTime" class="form-control hasDatePicker" name="ExpectedFromTime" tabindex="15" />
+                        </td>
+                        <td class="labeleTD"><label class="label">Contractor First Name</label></td>
+                        <td>
+                            <input type="text" id="TechFirstName" class="form-control" name="TechFirstName" tabindex="8" />
+                        </td>
+                        <td class="labeleTD"><label class="label">City</label></td>
+                        <td>
+                            <input type="text" id="ByCity" class="form-control" name="ByCity" tabindex="12" />
+                        </td>
+
+                        <td class="labeleTD"><label class="label">WO #</label></td>
+                        <td>
+                            <input type="text" id="ByCustomerWO" class="form-control" name="ByCustomerWO" tabindex="18" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        
+                        <td class="labeleTD"><label class="label">Expected To</label></td>
+                        <td>
+                            <input type="text" id="ExpectedToTime" class="form-control hasDatePicker" name="ExpectedToTime" tabindex="16" />
+                        </td>
+                        <td class="labeleTD"><label class="label">Contractor Last Name</label></td>
+                        <td>
+                            <input type="text" id="TechLastName" class="form-control" name="TechLastName" tabindex="9" />
+                        </td>
+                        <td class="labeleTD"><label class="label">State</label></td>
+                        <td>
+                            @Html.DropDownList("ByState", new SelectList(ViewBag.States, "Id", "Name"), new { @class = "form-control", tabindex = "13" })
+                        </td>
+
+                        <td class="labeleTD"><label class="label">Tracking #</label></td>
+                        <td>
+                            <input type="text" id="FilterPanel_POTrackingNumber" class="form-control" name="FilterPanel_POTrackingNumber" tabindex="19" />
+                        </td>
+
+                    </tr>
+                  
+                </table>
+                <div id="filterBtn" style="width:50%; margin-top:7px;">
+                    <button onclick="TodaysJobs();" class="btn btn-primary" style="font-size:small" id="btnTodaysJobs" tabindex="20">Today</button>
+                    <button onclick="SearchJobs(1);" class="btn btn-success" style="font-size:small" id="btnsearchjobs" tabindex="21">Search</button>
+                    <button onclick="ClearFilters();" class="btn btn-warning" style="font-size:small" id="btnClearFilters" tabindex="22">Clear Filters</button>
+                    <input id="searchRecentlyJob" type="button" class="btn btn-primary" style="width:auto; font-size:small" tabindex="23" onclick="SearchJobs(2);" value="Recently Viewed" title="Shows 15 recently opened jobs" />
+                </div>
+                <br />
+                @*<table style="float:right; margin-top:58px; margin-right:-40px;" class="dBoard">
+                    <tbody>
+                        <tr>
+                            <td><button onclick="SearchJobs(3)" style="width: 150px; font-size: small;" class="btn btn-primary">Dispatch</button></td>
+                        </tr>
+                        <tr>
+                            <td><button onclick="SearchJobs(4)" style="width: 150px; font-size: small;" class="btn btn-primary">Dispatch Manager</button></td>
+                        </tr>
+                        <tr>
+                            <td><button onclick="SearchJobs(5)" style="width: 150px; font-size: small;" class="btn btn-primary">Accounting</button></td>
+                        </tr>
+                        <tr>
+                            <td><button onclick="SearchJobs(6)" style="width: 150px; font-size: small;" class="btn btn-primary">CSR</button></td>
+                        </tr>
+                    </tbody>
+                </table>*@
+            </div>
+
+        </div>
+
+    </div>
+
+    <br />
+    <div class="CustomJobFilter clearfix " style="display:none;">
+    </div>
+
+</div>
+<div>
+    <textarea class="form-control" style="margin-top: 0px;margin-left: 2px;margin-bottom: 0px;height: 182px;width: 99.7%;"></textarea>
+</div>
+
